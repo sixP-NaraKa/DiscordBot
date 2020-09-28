@@ -1,4 +1,4 @@
-# discord_bot.py
+# bot.py
 
 """
 Copyright © 2020 https://github.com/sixP-NaraKa - and all that shit.
@@ -16,14 +16,14 @@ import logging
 import pandas as pd
 
 
-# ToDo:
-#  - Implement a way to capitalize every other word in the step to create a text based channel
-#       (auto lowers everything in discord)
-#  - as well as if arguments (and which) are required and which optional (in the help section of the command)
-#  - general output formatting
-#  - maybe add some other output to the DM, like "command you triggered which made me sent this DM was ..."
-#  - make mroe specific channel based commands and flesh out and/or make existing ones work
-#  - ...
+# ToDo: - Implement a way to capitalize every other word in the step to create a text based channel
+#  (auto lowers everything in discord)
+#       - as well as if arguments (and which) are required and which optional (in the help section)
+#       - general output formatting
+#       - maybe add some other output to the DM, like "command you triggered which made me sent this DM was ..."
+#       - try and find out if you can show graphs as well (for example with matplotlib and stuff) :O
+#           - gifs and emotes too (emotes work, but gif? let us find out) ;)
+#       - ...
 
 
 load_dotenv("..\\DiscordBot\\.env.txt")
@@ -39,19 +39,26 @@ logging.basicConfig(level=logging.INFO)
 """ HERE START THE GENERAL METHODS/FUNCTIONS """
 
 
-async def send_dm_members(user, guild, text):
+async def send_dm(user, guild, channel, command, text, info=""):
     """
     A method to send a user whatever text this method has received.
 
     :param user: the message receiving user
     :param guild: the guild in which the Bot command call has been made from
+    :param channel: the channel in which the command has been called in
+    :param command: the command which triggered sending this DM (direct message)
     :param text: what text to send the user via a DM (direct message)
+    :param info: optional additional information, which the user might find useful
 
     :return: nothing needs to be returned
     """
 
     await user.create_dm()
-    await user.dm_channel.send(f"Guild/Server Members for {guild}: \n - {text}")
+    # await user.dm_channel.send(f"Guild/Server Members for {guild}: \n - {text}")
+    await user.dm_channel.send(f"This DM has been triggered by command '!{command}' "
+                               f"from guild/server '{guild}' in channel '{channel}'.\n"
+                               f"\n{info}\n"
+                               f"\n{text}")
 
 
 """ HERE START THE BOT EVENTS """
@@ -95,10 +102,14 @@ async def on_command_error(ctx, error):
     Event:\n
     Whenever a command error (specified below) happens, a error message will be thrown, notifying the user.
     \n
-    CheckFailure: not correct role/permissions\n
+    # CheckFailure: not correct role/permissions\n
+    MissingRole || MissingPermissions: treating it here as the same for simplicity
     CommandNotFound: command not found\n
     MissingRequiredArgument: one or more required arguments have not been passed to the command
     BadArgument: one or more arguments could not be converted to the required datatype
+    TooManyArguments: if too many arguments have been passed, notify user
+    NoPrivateMessage: if a command has been invoked from a private message (dm) and the command has the
+    commands.guild_only() decorator parameter/tag, notify the user that the command does not work here
 
     :param ctx: the Context data (gets it from Discord)
     :param error: the error (gets it from Discord)
@@ -106,8 +117,11 @@ async def on_command_error(ctx, error):
     :return: a message to the user, notifying them what happened
     """
 
-    if isinstance(error, commands.errors.CheckFailure):
-        return await ctx.send("You do not have the correct role/permissions for this command.")
+    # if isinstance(error, commands.errors.CheckFailure):
+    #     return await ctx.send("You do not have the correct role/permissions for this command.")
+    if isinstance(error, commands.errors.MissingRole) or isinstance(error, commands.errors.MissingPermissions):
+        return await ctx.send("You do not have the correct role/permissions for this command.\n"
+                              "Contact your guild/server Admins if you think this is incorrect.")
     if isinstance(error, commands.errors.CommandNotFound):
         return await ctx.send("This command does not exist. Type !help to see all available commands.")
     if isinstance(error, commands.errors.MissingRequiredArgument):
@@ -121,6 +135,8 @@ async def on_command_error(ctx, error):
         return await ctx.send("Error: Too many arguments have been passed to the command."
                               "\nSee !help <command> for more information and example usages."
                               "\n\nIf you want this notification to not appear, contact the creator of this Bot.")
+    if isinstance(error, commands.errors.NoPrivateMessage):  # the commands.guild_only() tag throws this error
+        return await ctx.send("Error: This command does not work in a private message.")
 
 
 """ HERE START THE BOT COMMANDS """
@@ -128,7 +144,7 @@ async def on_command_error(ctx, error):
 
 @bot.command(name="madeby",
              help="Outputs the creator of this Bot, as well as how to reach them if needed.",
-             ignore_extra=False)
+             ignore_extra=True)
 async def made_by(ctx):
     """
     Command:\n
@@ -158,6 +174,7 @@ async def made_by(ctx):
                   "- Member2\n"
                   "- ...",
              ignore_extra=False)
+@commands.guild_only()
 async def get_members(ctx, discrim=True):
     """
     Command:\n
@@ -183,23 +200,17 @@ async def get_members(ctx, discrim=True):
     :return: a message to the user who invoked this command, stating that they received a DM from the Bot.
     """
 
-    # guild = ctx.guild
-    user = ctx.author
-    await ctx.send(f"General information:"
-                   f"\n{bot.user.name} is connected to the following guild/server:"
-                   f"\nName - {ctx.guild}"
-                   f"\nID - {ctx.guild.id}"
-                   f"\nMembers - {ctx.guild.member_count}")
+    general_info = f"General information:"\
+                   f"\n{bot.user.name} is connected to the following guild/server:"\
+                   f"\nName - {ctx.guild}"\
+                   f"\nID - {ctx.guild.id}"\
+                   f"\nMembers - {ctx.guild.member_count}"
 
     # gets the names of the current guild members only
+    members = "Member list: \n- "
     if not discrim:
         # getting a string (joining) of all the members of the guild, with the help of a little list comprehension
-        members = "\n - ".join([member.name for member in ctx.guild.members])
-
-        await send_dm_members(user, ctx.guild, members)
-        # return await ctx.send(f"Guild/Server Members: \n - {members}")
-        return await ctx.send(f"Sent you (@{user}) a DM containing more detailed information about who exactly. :)"
-                              f"\nReason: so as not to clutter the chat.")
+        members += "\n- ".join([member.name for member in ctx.guild.members])
 
     # getting the discriminator, i.e. the #...., and adding it to the output, i.e. the name
     else:
@@ -209,17 +220,20 @@ async def get_members(ctx, discrim=True):
             guild_members.append("#".join([member.name, member.discriminator]))
 
         # joins the above extracted list of user name and discrim into an easy to output string
-        members = "\n - ".join(guild_members)
+        members += "\n- ".join(guild_members)
 
-        await send_dm_members(user, ctx.guild, members)
-        # return await ctx.send(f"Guild/Server Members: \n - {members}")
-        return await ctx.send(f"Sent you (@{user}) a DM containing more detailed information about who exactly. :)"
-                              f"\nReason: so as not to clutter the chat.")
+    # can do only one return, since in this case here it works just fine
+    user = ctx.author
+    guild = ctx.guild
+    channel = ctx.channel
+    triggered_command = ctx.command
+    await send_dm(user=user, guild=guild, channel=channel, command=triggered_command, text=members, info=general_info)
+    return await ctx.send(f"Sent you (@{user}) a DM containing more detailed information. :smiley:")
 
 
 @bot.command(name="419",
              help="Responds with '420!' whenever someone uses this command.",
-             ignore_extra=False)
+             ignore_extra=True)
 async def four_twenty(ctx):
     """
     Command:\n
@@ -236,7 +250,7 @@ async def four_twenty(ctx):
 
 @bot.command(name="roll",
              help="Rolls a dice with how many sides of your choosing.",
-             ignore_extra=False)
+             ignore_extra=True)
 async def roll_dice(ctx, number_of_sides="0"):
     """
     Command:\n
@@ -249,10 +263,7 @@ async def roll_dice(ctx, number_of_sides="0"):
     :return: the randomly chosen rolled number in range of 1 to param: number_of_sides
     """
 
-    # make number_of_sides default to a string "0", so if the user does not input anything,
-    # we can then simply either default it to a different value, or do something else, instead of nothing
-
-    default = 6
+    default = 5
     try:
         number_of_sides = int(number_of_sides)
 
@@ -277,6 +288,7 @@ async def roll_dice(ctx, number_of_sides="0"):
                   "2.) !create-channel MyChannelName s\n"
                   "- voice channel 'MyChannelName' has been created.",
              ignore_extra=False)
+@commands.guild_only()
 @commands.has_role("admins")
 async def create_channel(ctx, channel_name, text_or_voice):
     """
@@ -301,8 +313,8 @@ async def create_channel(ctx, channel_name, text_or_voice):
     """
 
     guild = ctx.guild  # current guild
-    existing_channel = discord.utils.get(guild.channels, name=channel_name)  # check if channel exists
-    if not existing_channel:
+    existing_channel = discord.utils.get(guild.channels, name=channel_name)  # True or False, checked ob channel gibt
+    if not existing_channel:  # wert is da, also nicht null --> nicht empty also True, empty ist gleich False (etc.)
         await ctx.send(f"Creating new channel: {channel_name}")
         if text_or_voice == "t":
             await guild.create_text_channel(channel_name)
@@ -321,6 +333,7 @@ async def create_channel(ctx, channel_name, text_or_voice):
                   "1.) !delete-channel MyChannelName\n"
                   "- if channel exists, channel deleted",
              ignore_extra=False)
+@commands.guild_only()
 @commands.has_role("admins")
 async def delete_channel(ctx, channel_name):
     """
@@ -341,7 +354,8 @@ async def delete_channel(ctx, channel_name):
     """
 
     guild = ctx.guild
-    existing_channel = discord.utils.get(guild.channels, name=channel_name)  # checks if the channel exists
+    existing_channel = discord.utils.get(guild.channels, name=channel_name)
+    # print(type(existing_channel))
     if existing_channel:
         # existing_channel_id = existing_channel.id
         await ctx.send(f"Deleting channel: {channel_name}")
@@ -355,11 +369,12 @@ async def delete_channel(ctx, channel_name):
              help="Fetches the current amount of players in-game in AoE2:DE."
                   "\nThis command only works within Age Of Empires 2 channels!",
              ignore_extra=False)
+@commands.guild_only()
 async def get_online_players(ctx):
     """
     Command:\n
     Fetches the current amount of players in-game in AoE2.DE.
-    \nThis command only works within Age Of Empires 2 channels! todo: soon
+    \nThis command only works within Age Of Empires 2 channels!
 
     :param ctx: the Context data (gets it from Discord)
 
@@ -386,6 +401,7 @@ async def get_online_players(ctx):
              help="Little command to demonstrate how to make commands channel specific."
                   "\nThis command is only usable in Age Of Empires (2) channels.",
              ignore_extra=False)
+@commands.guild_only()
 async def get_channel(ctx):
     """
     Command:\n
@@ -396,6 +412,8 @@ async def get_channel(ctx):
     :return: a simple response in which channel you currently are calling this command from
     """
 
+    # kann erweitert werden, sodass diese methode hier scahut um was für ein Channel es sich handelt,
+    # und dann andere Channel spezifische Methoden auswählt, oder so, je nach dem was gemacht werden soll ;)
     channel = ctx.channel
     if channel.name.lower() in ["aoe", "aoe2", "age of empires", "age of empires 2", "ageofempires", "ageofempires2",
                                 "age_of_empires", "age_of_empires_2", "age", "age2", "aoe2de",
