@@ -1,4 +1,4 @@
-# bot.py
+# discord_bot.py
 
 """
 Copyright © 2020 https://github.com/sixP-NaraKa - and all that shit.
@@ -14,16 +14,17 @@ from discord.ext import commands
 from dotenv import load_dotenv
 import logging
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
-# ToDo: - Implement a way to capitalize every other word in the step to create a text based channel
-#  (auto lowers everything in discord)
-#       - as well as if arguments (and which) are required and which optional (in the help section)
-#       - general output formatting
-#       - maybe add some other output to the DM, like "command you triggered which made me sent this DM was ..."
-#       - try and find out if you can show graphs as well (for example with matplotlib and stuff) :O
-#           - gifs and emotes too (emotes work, but gif? let us find out) ;)
-#       - ...
+# ToDo:
+#   - in the create-channel command add a way for the user to specify which category he wants to add the channel to
+#       - if the category does not exist (or anything close to it) then create a new category) - create new method here
+#   - put the plotting in the online command maybe in a seperate function, for visibility sake
+#       - also make it more pleasing looking
+#       - also make the online command only usable in AoE channels/categories
+#   - with the new functions and adding the older ones, keep up the documentation, etc.
+#   - ...
 
 
 load_dotenv("..\\DiscordBot\\.env.txt")
@@ -32,8 +33,6 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 bot = commands.Bot(command_prefix="!")
 
 logging.basicConfig(level=logging.INFO)
-
-# bot.run(TOKEN)
 
 
 """ HERE START THE GENERAL METHODS/FUNCTIONS """
@@ -54,11 +53,18 @@ async def send_dm(user, guild, channel, command, text, info=""):
     """
 
     await user.create_dm()
-    # await user.dm_channel.send(f"Guild/Server Members for {guild}: \n - {text}")
     await user.dm_channel.send(f"This DM has been triggered by command '!{command}' "
                                f"from guild/server '{guild}' in channel '{channel}'.\n"
                                f"\n{info}\n"
                                f"\n{text}")
+
+
+async def create_category():
+    pass
+
+
+async def plotting():
+    pass
 
 
 """ HERE START THE BOT EVENTS """
@@ -103,13 +109,14 @@ async def on_command_error(ctx, error):
     Whenever a command error (specified below) happens, a error message will be thrown, notifying the user.
     \n
     # CheckFailure: not correct role/permissions\n
-    MissingRole || MissingPermissions: treating it here as the same for simplicity
+    MissingRole: missing a specific role to perform command\n
+    MissingPermissions: ^\n
     CommandNotFound: command not found\n
-    MissingRequiredArgument: one or more required arguments have not been passed to the command
-    BadArgument: one or more arguments could not be converted to the required datatype
-    TooManyArguments: if too many arguments have been passed, notify user
-    NoPrivateMessage: if a command has been invoked from a private message (dm) and the command has the
-    commands.guild_only() decorator parameter/tag, notify the user that the command does not work here
+    MissingRequiredArgument: one or more required arguments have not been passed to the command\n
+    BadArgument: one or more arguments could not be converted to the required datatype\n
+    TooManyArguments: if too many arguments have been passed, notify user\n\n
+    NoPrivateMessage: if a command has been invoked from a private message (dm) and the command has the\n
+    commands.guild_only() decorator parameter/tag, notify the user that the command does not work here\n
 
     :param ctx: the Context data (gets it from Discord)
     :param error: the error (gets it from Discord)
@@ -167,7 +174,7 @@ async def made_by(ctx):
                   "\nExample Usage:\n"
                   "1.) !members\n"
                   "- Member1#1234\n"
-                  "- Member#2134\n"
+                  "- Member2#2134\n"
                   "- ...\n"
                   "2.) !members False\n"
                   "- Member1\n"
@@ -180,7 +187,7 @@ async def get_members(ctx, discrim=True):
     Command:\n
     Gets the current members from the guild the command has been invoked from.
     <discrim> is a optional argument - can be used to also get the "handle" (#....) together with the member name.
-    \nThis function calls the send_dm_members(...) function above, in order to send DMs.
+    \nThis function calls the send_dm(...) function above, in order to send DMs.
     \n
 
     Example usage:\n
@@ -249,7 +256,7 @@ async def four_twenty(ctx):
 
 
 @bot.command(name="roll",
-             help="Rolls a dice with how many sides of your choosing.",
+             help="Rolls a dice with how many sides of your choosing. Defaults to 6 if <= 0.",
              ignore_extra=True)
 async def roll_dice(ctx, number_of_sides="0"):
     """
@@ -279,8 +286,25 @@ async def roll_dice(ctx, number_of_sides="0"):
         return await ctx.send(f"Error: Cannot convert {number_of_sides} to an Integer. Only use whole numbers!")
 
 
+@bot.command(name="ripit",
+             help="♂ Do you like what you see? ♂")
+async def rip_it(ctx):
+    """
+    Command:\n
+    Sends a gif.
+
+    :param ctx: the Context data (gets it from Discord)
+
+    :return: the gif
+    """
+    # user = ctx.author
+    return await ctx.send(file=discord.File("C:\\Users\\IEUser\\Pictures\\external-content.duckduckgo.com.gif"))
+
+
 @bot.command(name="create-channel",
              help="Creates a channel (text or audio) - use simply t for Text, v for Voice."
+                  "\nSince Discord doesn't allow capital names of TextChannels, "
+                  "there is not much to be done about it... VoiceChannels work fine though lul."
                   "\nOnly Users with the Admin role can use this command."
                   "\nExample Usage:\n"
                   "1.) !create-channel MyChannelName t\n"
@@ -314,13 +338,14 @@ async def create_channel(ctx, channel_name, text_or_voice):
 
     guild = ctx.guild  # current guild
     existing_channel = discord.utils.get(guild.channels, name=channel_name)  # True or False, checked ob channel gibt
+    category = await guild.create_category_channel("AoE2-DE")
     if not existing_channel:  # wert is da, also nicht null --> nicht empty also True, empty ist gleich False (etc.)
         await ctx.send(f"Creating new channel: {channel_name}")
         if text_or_voice == "t":
-            await guild.create_text_channel(channel_name)
+            await guild.create_text_channel(channel_name, category=category)
             return await ctx.send(f"Text channel {channel_name} created.")
         elif text_or_voice == "v":
-            await guild.create_voice_channel(channel_name)
+            await guild.create_voice_channel(channel_name, category=category)
             return await ctx.send(f"Voice channel {channel_name} created.")
     else:
         return await ctx.send(f"{channel_name} channel already exists.")
@@ -381,6 +406,8 @@ async def get_online_players(ctx):
     :return: the current online player stats of AoE2:DE
     """
 
+    filepath = "C:\\Users\\IEUser\\Pictures\\Plot.png"
+
     await ctx.send("In process. Might take a little. :)")
     aoe2_api = "https://aoe2.net/api/stats/players?game=aoe2de"
     response = requests.get(aoe2_api)
@@ -388,9 +415,25 @@ async def get_online_players(ctx):
     players = data["player_stats"][0]["num_players"]
 
     series = pd.Series(players).to_string()
-    return await ctx.send(f"Here are the current player stats for Age Of Empires 2: Definitive Edition: "
-                          f"powered by https://aoe2.net/api"
-                          f"\n{series}")
+    await ctx.send(f"Here are the current player stats for Age Of Empires 2: Definitive Edition: " 
+                   f"powered by https://aoe2.net/api" 
+                   f"\n{series}")
+
+    # here the plotting takes place, really rudimentary just for testing purposes
+    data_list = [players["steam"], players["multiplayer"], players["looking"], players["in_game"],
+                 players["multiplayer_1h"], players["multiplayer_24h"]]
+    df = pd.DataFrame(data=data_list)
+    ax = df.plot(kind="bar")
+    ax.set_title("AoE2:DE - current player stats -- powered by https://aoe2.net/api")
+    ax.set_xlabel("Status")
+    ax.set_ylabel("Player numbers")
+    ax.set_xticklabels(["steam", "multiplayer", "looking", "in_game", "multiplayer_1h", "multiplayer_24h"],
+                       rotation=0, ha="center")
+    # ax.legend(visible=False)
+    figure = plt.gcf()
+    figure.set_size_inches(19, 10)
+    plt.savefig(filepath)
+    await ctx.send(file=discord.File(filepath))
 
 
 """ HERE START THE CHANNEL SPECIFIC COMMANDS """
@@ -422,6 +465,18 @@ async def get_channel(ctx):
     else:
         return await ctx.send(f"You are not in the correct channel for this command!"
                               f"\nTry the !help command for information and example usages.")
+
+
+@bot.command(name="plot",
+             help="Plots something via matplotlib and pandas and shit.")
+async def send_plot(ctx):
+    import matplotlib.pyplot as plt
+    filepath = "C:\\Users\\IEUser\\Pictures\\Plot.png"
+    x = [5, 3, 1, 7, 5]
+    y = [1, 3, 5, 7, 9]
+    await ctx.send(plt.plot(x, y))
+    plt.savefig(filepath)
+    await ctx.send(file=discord.File(filepath))
 
 
 bot.run(TOKEN)
