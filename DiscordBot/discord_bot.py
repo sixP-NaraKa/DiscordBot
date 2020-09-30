@@ -1,4 +1,4 @@
-# discord_bot.py
+# bot.py
 
 """
 Copyright © 2020 https://github.com/sixP-NaraKa - and all that shit.
@@ -18,6 +18,7 @@ import matplotlib.pyplot as plt
 
 
 # ToDo:
+#   - also, if desired by the user, delete all the channels (if applicable) from the specific category as well
 #   - put the plotting in the online command maybe in a seperate function, for visibility sake
 #       - also make it more pleasing looking
 #       - also make the online command only usable in AoE channels/categories
@@ -280,6 +281,7 @@ async def rip_it(ctx):
 
 @bot.command(name="create-category",
              help="Create a given category."
+                  "\nOnly Users with the Admin role can use this command."
                   "\nSpaces, upper/lower case, as well as - & _ are allowed by Discord."
                   "\nIf you want to use spaces in the name, wrap the category name inside ' ' or " ".")
 @commands.has_role("admins")
@@ -293,9 +295,45 @@ async def create_category(ctx, category_name):
     :param category_name: the name the category should have, defined by the user
     :return:
     """
+
     guild = ctx.guild
-    category = await guild.create_category_channel(category_name)
-    await ctx.send(f"Category {category} created!")
+    existing_category = discord.utils.get(guild.categories, name=category_name)
+    if existing_category is None:
+        category = await guild.create_category_channel(category_name)
+        return await ctx.send(f"Category {category} created!")
+    else:
+        return ctx.send(f"Category {category_name} already exists!")
+
+
+@bot.command(name="delete-category",
+             help="Deletes a given category. You can specify with <delete_channels> True to also"
+                  "delete all its channels. Defaults to False if left empty."
+                  "\nOnly Users with the Admin role can use this command."
+                  "\nNote: case sensitive!")
+async def delete_category(ctx, category_name, delete_channels=False):
+    """
+    Command:\n
+    Deletes a given category.
+    ToDo: Optionally, all its channels as well.
+
+    :param ctx: the Context data (gets it from Discord)
+    :param category_name: the name of the category which the user wants to delete
+    :param delete_channels: delete the channels as well - defaults to False if left empty
+
+    :return: notifies the user of the outcome - if deleted or not
+    """
+
+    guild = ctx.guild
+    existing_category = discord.utils.get(guild.categories, name=category_name)
+    if existing_category is not None:
+        print(existing_category.channels)
+        await ctx.send(f"Deleting category {category_name}."
+                       f" Its channels (if applicable) have been moved to no category."
+                       f" If you wish to delete them as well, use the !help <delete-channel> command.")
+        await existing_category.delete()
+        return await ctx.send(f"Category {category_name} deleted.")
+    else:
+        return await ctx.send(f"Cannot delete category {category_name}: does not exist. ")
 
 
 @bot.command(name="create-channel",
@@ -419,6 +457,7 @@ async def get_online_players(ctx):
     Command:\n
     Fetches the current amount of players in-game in AoE2.DE.
     \nThis command only works within Age Of Empires 2 channels!
+    ToDo: make only usable in AoE specific categories - should be easier and better anyway.
 
     :param ctx: the Context data (gets it from Discord)
 
