@@ -18,8 +18,6 @@ import matplotlib.pyplot as plt
 
 
 # ToDo:
-#   - in the create-channel command add a way for the user to specify which category he wants to add the channel to
-#       - if the category does not exist (or anything close to it) then create a new category) - create new method here
 #   - put the plotting in the online command maybe in a seperate function, for visibility sake
 #       - also make it more pleasing looking
 #       - also make the online command only usable in AoE channels/categories
@@ -57,10 +55,6 @@ async def send_dm(user, guild, channel, command, text, info=""):
                                f"from guild/server '{guild}' in channel '{channel}'.\n"
                                f"\n{info}\n"
                                f"\n{text}")
-
-
-async def create_category():
-    pass
 
 
 async def plotting():
@@ -238,23 +232,6 @@ async def get_members(ctx, discrim=True):
     return await ctx.send(f"Sent you (@{user}) a DM containing more detailed information. :smiley:")
 
 
-@bot.command(name="419",
-             help="Responds with '420!' whenever someone uses this command.",
-             ignore_extra=True)
-async def four_twenty(ctx):
-    """
-    Command:\n
-    A little command which responds which "420! whenever someone uses this command.
-
-    :param ctx: the Context data (gets it from Discord)
-
-    :return: nothing needs to be returned
-    """
-
-    response = "420!"
-    await ctx.send(response)
-
-
 @bot.command(name="roll",
              help="Rolls a dice with how many sides of your choosing. Defaults to 6 if <= 0.",
              ignore_extra=True)
@@ -301,52 +278,91 @@ async def rip_it(ctx):
     return await ctx.send(file=discord.File("C:\\Users\\IEUser\\Pictures\\external-content.duckduckgo.com.gif"))
 
 
+@bot.command(name="create-category",
+             help="Create a given category."
+                  "\nSpaces, upper/lower case, as well as - & _ are allowed by Discord."
+                  "\nIf you want to use spaces in the name, wrap the category name inside ' ' or " ".")
+@commands.has_role("admins")
+async def create_category(ctx, category_name):
+    """
+    Command:\n
+    Creates a given category.
+    \nOnly Admins can use this command.
+
+    :param ctx: the Context data (gets it from Discord)
+    :param category_name: the name the category should have, defined by the user
+    :return:
+    """
+    guild = ctx.guild
+    category = await guild.create_category_channel(category_name)
+    await ctx.send(f"Category {category} created!")
+
+
 @bot.command(name="create-channel",
              help="Creates a channel (text or audio) - use simply t for Text, v for Voice."
                   "\nSince Discord doesn't allow capital names of TextChannels, "
                   "there is not much to be done about it... VoiceChannels work fine though lul."
+                  "\nIf you want the channel to be created under a specific category, simply add the name of the"
+                  "category to the command. Note: case sensitive!"
                   "\nOnly Users with the Admin role can use this command."
                   "\nExample Usage:\n"
-                  "1.) !create-channel MyChannelName t\n"
+                  "1.) !create-channel MyChannelName t <optional category>\n"
                   "- text channel 'MyChannelName' has been created.\n"
-                  "2.) !create-channel MyChannelName s\n"
+                  "2.) !create-channel MyChannelName s <optional category>\n"
                   "- voice channel 'MyChannelName' has been created.",
              ignore_extra=False)
 @commands.guild_only()
 @commands.has_role("admins")
-async def create_channel(ctx, channel_name, text_or_voice):
+async def create_channel(ctx, channel_name, text_or_voice, category_name=""):
     """
     Command:\n
-    Creates a text or voice based channel in (at the moment) no category.
+    Creates a text or voice based channel in a, if desired, given category.
     Returns an error when the channel already exists.
     \nOnly Users with the Admin role can use this command!
     \n
 
     Example Usage:\n
-    1.) !create-channel MyChannelName t
+    1.) !create-channel MyChannelName t <optional category>
         - text channel "MyChannelName" has been created.
 
-    2.) !create-channel MyChannelName s
+    2.) !create-channel MyChannelName s <optional category>
         - voice channel "MyChannelName" has been created.
 
     :param ctx: the Context data (gets it from Discord)
     :param channel_name: how the channel should be called
     :param text_or_voice: text or voice channel, t for text, v for voice
+    :param category_name: optional - the category, if desired, in which the channel should be created under
 
     :return: creates the channel and notifies the user
     """
 
     guild = ctx.guild  # current guild
     existing_channel = discord.utils.get(guild.channels, name=channel_name)  # True or False, checked ob channel gibt
-    category = await guild.create_category_channel("AoE2-DE")
+
+    # if the category name is not an empty string, look for that category
+    if category_name != "":
+        existing_category = discord.utils.get(guild.categories, name=category_name)
+        # if the category does not exist, notify the user and discontinue
+        if existing_category is None:
+            return await ctx.send(f"Category {category_name} does not exist!")
+
+    # if above category does exist, continue with the creation of the channel
     if not existing_channel:  # wert is da, also nicht null --> nicht empty also True, empty ist gleich False (etc.)
-        await ctx.send(f"Creating new channel: {channel_name}")
+        await ctx.send(f"Trying to create new channel: {channel_name}")
         if text_or_voice == "t":
-            await guild.create_text_channel(channel_name, category=category)
-            return await ctx.send(f"Text channel {channel_name} created.")
+            if category_name != "":
+                await guild.create_text_channel(channel_name, category=existing_category)
+                return await ctx.send(f"Text channel {channel_name} created under category {category_name}.")
+            else:
+                await guild.create_text_channel(channel_name)
+                return await ctx.send(f"Text channel {channel_name} created.")
         elif text_or_voice == "v":
-            await guild.create_voice_channel(channel_name, category=category)
-            return await ctx.send(f"Voice channel {channel_name} created.")
+            if category_name != "":
+                await guild.create_voice_channel(channel_name, category=existing_category)
+                return await ctx.send(f"Voice channel {channel_name} created under category {category_name}.")
+            else:
+                await guild.create_voice_channel(channel_name)
+                return await ctx.send(f"Voice channel {channel_name} created.")
     else:
         return await ctx.send(f"{channel_name} channel already exists.")
 
@@ -388,6 +404,9 @@ async def delete_channel(ctx, channel_name):
         return await ctx.send(f"Channel {channel_name} deleted.")
     else:
         return await ctx.send(f"Cannot delete channel {channel_name}: does not exist.")
+
+
+""" HERE START THE CHANNEL SPECIFIC COMMANDS """
 
 
 @bot.command(name="online",
@@ -432,49 +451,6 @@ async def get_online_players(ctx):
     # ax.legend(visible=False)
     figure = plt.gcf()
     figure.set_size_inches(19, 10)
-    plt.savefig(filepath)
-    await ctx.send(file=discord.File(filepath))
-
-
-""" HERE START THE CHANNEL SPECIFIC COMMANDS """
-
-
-# Age Of Empires 2 related commands - only usable in AoE channels
-@bot.command(name="channel",
-             help="Little command to demonstrate how to make commands channel specific."
-                  "\nThis command is only usable in Age Of Empires (2) channels.",
-             ignore_extra=False)
-@commands.guild_only()
-async def get_channel(ctx):
-    """
-    Command:\n
-    Test command to test channel specific commands and how to use them.
-
-    :param ctx: the Context data (gets it from Discord)
-
-    :return: a simple response in which channel you currently are calling this command from
-    """
-
-    # kann erweitert werden, sodass diese methode hier scahut um was für ein Channel es sich handelt,
-    # und dann andere Channel spezifische Methoden auswählt, oder so, je nach dem was gemacht werden soll ;)
-    channel = ctx.channel
-    if channel.name.lower() in ["aoe", "aoe2", "age of empires", "age of empires 2", "ageofempires", "ageofempires2",
-                                "age_of_empires", "age_of_empires_2", "age", "age2", "aoe2de",
-                                "age-of-empires", "age-of-empires-2"]:
-        return await ctx.send(f"{channel}")
-    else:
-        return await ctx.send(f"You are not in the correct channel for this command!"
-                              f"\nTry the !help command for information and example usages.")
-
-
-@bot.command(name="plot",
-             help="Plots something via matplotlib and pandas and shit.")
-async def send_plot(ctx):
-    import matplotlib.pyplot as plt
-    filepath = "C:\\Users\\IEUser\\Pictures\\Plot.png"
-    x = [5, 3, 1, 7, 5]
-    y = [1, 3, 5, 7, 9]
-    await ctx.send(plt.plot(x, y))
     plt.savefig(filepath)
     await ctx.send(file=discord.File(filepath))
 
