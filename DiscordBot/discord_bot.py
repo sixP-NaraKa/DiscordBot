@@ -1,4 +1,4 @@
-# bot.py
+# discord_bot.py
 
 """
 Copyright © 2020 https://github.com/sixP-NaraKa - and all that shit.
@@ -265,7 +265,8 @@ async def roll_dice(ctx, number_of_sides="0"):
 
 
 @bot.command(name="ripit",
-             help="♂ Do you like what you see? ♂")
+             help="♂ Do you like what you see? ♂",
+            ignore_extra=True)
 async def rip_it(ctx):
     """
     Command:\n
@@ -283,7 +284,8 @@ async def rip_it(ctx):
              help="Create a given category."
                   "\nOnly Users with the Admin role can use this command."
                   "\nSpaces, upper/lower case, as well as - & _ are allowed by Discord."
-                  "\nIf you want to use spaces in the name, wrap the category name inside ' ' or " ".")
+                  "\nIf you want to use spaces in the name, wrap the category name inside ' ' or " ".",
+            ignore_extra=True)
 @commands.has_role("admins")
 async def create_category(ctx, category_name):
     """
@@ -309,7 +311,8 @@ async def create_category(ctx, category_name):
              help="Deletes a given category. You can specify with <delete_channels> True to also"
                   "delete all its channels. Defaults to False if left empty."
                   "\nOnly Users with the Admin role can use this command."
-                  "\nNote: case sensitive!")
+                  "\nNote: case sensitive!",
+            ignore_extra=True)
 async def delete_category(ctx, category_name, delete_channels=False):
     """
     Command:\n
@@ -450,7 +453,7 @@ async def delete_channel(ctx, channel_name):
 @bot.command(name="online",
              help="Fetches the current amount of players in-game in AoE2:DE."
                   "\nThis command only works within Age Of Empires 2 channels!",
-             ignore_extra=False)
+             ignore_extra=True)
 @commands.guild_only()
 async def get_online_players(ctx):
     """
