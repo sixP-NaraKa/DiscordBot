@@ -24,6 +24,9 @@ import matplotlib.pyplot as plt
 #       - also make the online command only usable in AoE channels/categories
 #   - with the new functions and adding the older ones, keep up the documentation, etc.
 #   - ...
+#   - if you want to create category or channel the name of an already existing category or channel is crucial
+#       - including wanting a channel which has the same name as a category and vice versa (i.e. it doesn't work then, cause already exists)
+#       - might want to note that down in the commands / error messages to the user, etc.
 
 
 load_dotenv("..\\DiscordBot\\.env.txt")
@@ -56,10 +59,6 @@ async def send_dm(user, guild, channel, command, text, info=""):
                                f"from guild/server '{guild}' in channel '{channel}'.\n"
                                f"\n{info}\n"
                                f"\n{text}")
-
-
-async def plotting():
-    pass
 
 
 """ HERE START THE BOT EVENTS """
@@ -266,7 +265,7 @@ async def roll_dice(ctx, number_of_sides="0"):
 
 @bot.command(name="ripit",
              help="♂ Do you like what you see? ♂",
-            ignore_extra=True)
+             ignore_extra=True)
 async def rip_it(ctx):
     """
     Command:\n
@@ -285,7 +284,7 @@ async def rip_it(ctx):
                   "\nOnly Users with the Admin role can use this command."
                   "\nSpaces, upper/lower case, as well as - & _ are allowed by Discord."
                   "\nIf you want to use spaces in the name, wrap the category name inside ' ' or " ".",
-            ignore_extra=True)
+             ignore_extra=True)
 @commands.has_role("admins")
 async def create_category(ctx, category_name):
     """
@@ -312,7 +311,7 @@ async def create_category(ctx, category_name):
                   "delete all its channels. Defaults to False if left empty."
                   "\nOnly Users with the Admin role can use this command."
                   "\nNote: case sensitive!",
-            ignore_extra=True)
+             ignore_extra=True)
 async def delete_category(ctx, category_name, delete_channels=False):
     """
     Command:\n
@@ -329,7 +328,7 @@ async def delete_category(ctx, category_name, delete_channels=False):
     guild = ctx.guild
     existing_category = discord.utils.get(guild.categories, name=category_name)
     if existing_category is not None:
-        print(existing_category.channels)
+        # print(existing_category.channels)
         await ctx.send(f"Deleting category {category_name}."
                        f" Its channels (if applicable) have been moved to no category."
                        f" If you wish to delete them as well, use the !help <delete-channel> command.")
@@ -453,7 +452,7 @@ async def delete_channel(ctx, channel_name):
 @bot.command(name="online",
              help="Fetches the current amount of players in-game in AoE2:DE."
                   "\nThis command only works within Age Of Empires 2 channels!",
-             ignore_extra=True)
+             ignore_extra=False)
 @commands.guild_only()
 async def get_online_players(ctx):
     """
@@ -467,7 +466,7 @@ async def get_online_players(ctx):
     :return: the current online player stats of AoE2:DE
     """
 
-    filepath = "C:\\Users\\IEUser\\Pictures\\Plot.png"
+    filepath = "C:\\Users\\IEUser\\Pictures\\aoe.png"
 
     await ctx.send("In process. Might take a little. :)")
     aoe2_api = "https://aoe2.net/api/stats/players?game=aoe2de"
@@ -475,10 +474,10 @@ async def get_online_players(ctx):
     data = response.json()
     players = data["player_stats"][0]["num_players"]
 
-    series = pd.Series(players).to_string()
-    await ctx.send(f"Here are the current player stats for Age Of Empires 2: Definitive Edition: " 
-                   f"powered by https://aoe2.net/api" 
-                   f"\n{series}")
+    # series = pd.Series(players).to_string()
+    # await ctx.send(f"Here are the current player stats for Age Of Empires 2: Definitive Edition: "
+    #                f"powered by https://aoe2.net/api"
+    #                f"\n{series}")
 
     # here the plotting takes place, really rudimentary just for testing purposes
     data_list = [players["steam"], players["multiplayer"], players["looking"], players["in_game"],
@@ -488,13 +487,45 @@ async def get_online_players(ctx):
     ax.set_title("AoE2:DE - current player stats -- powered by https://aoe2.net/api")
     ax.set_xlabel("Status")
     ax.set_ylabel("Player numbers")
-    ax.set_xticklabels(["steam", "multiplayer", "looking", "in_game", "multiplayer_1h", "multiplayer_24h"],
-                       rotation=0, ha="center")
+    xlabels = players.keys()  # the xlabels are the keys from the dict
+    ax.set_xticklabels(xlabels, rotation=0, ha="center")
     # ax.legend(visible=False)
     figure = plt.gcf()
     figure.set_size_inches(19, 10)
     plt.savefig(filepath)
     await ctx.send(file=discord.File(filepath))
+
+
+@bot.command(name="cat",
+             help="Get the current category you are in. None if in no category.")
+@commands.guild_only()
+async def get_current_category(ctx):
+    """
+    Command:\n
+    Get the current category you are in. None if in no category.
+
+    :param ctx: the Context data (gets it from Discord)
+
+    :return: the category where the command has been called from
+    """
+
+    category = ctx.channel.category
+    # print(category)
+
+    if category is not None:
+        channels_cat = category.channels
+        # print(channels_cat)
+        channel_names = ""
+        for channel in channels_cat:
+            channel_names += channel.name + "\n"
+
+        # return await ctx.send(f"You are in category: {category}."
+        #                       f"\nThe category has the following channels: {channel_names}")
+
+        await send_dm(ctx.author, ctx.guild, ctx.channel, ctx.command, channel_names)
+        return await ctx.send(f"Sent you (@{ctx.author}) a DM containing more detailed information. :smiley:")
+    else:
+        return await ctx.send("You are in no category.")
 
 
 bot.run(TOKEN)
