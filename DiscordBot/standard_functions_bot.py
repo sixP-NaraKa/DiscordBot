@@ -22,5 +22,5 @@ async def send_dm(user, guild, channel, command, text, info=""):
     await user.create_dm()
     await user.dm_channel.send(f"This DM has been triggered by command '!{command}' "
                                f"from guild/server '{guild}' in channel '{channel}'.\n"
-                               f"\n{info}\n"
+                               f"\n{info}"
                                f"\n{text}")
