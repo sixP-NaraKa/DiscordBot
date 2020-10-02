@@ -11,6 +11,7 @@ See:
 - .command_channel_bot
 - .command_misc_bot
 - .command_aoe_bot
+- .standard-functions_bot
 """
 
 import os
