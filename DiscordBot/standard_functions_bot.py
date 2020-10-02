@@ -11,6 +11,7 @@ async def send_dm(user, guild, category, channel, command, text, info=""):
 
     :param user: the message receiving user
     :param guild: the guild in which the Bot command call has been made from
+    :param category: the category the command came from (if applicable) - None if the channel is not under a category
     :param channel: the channel in which the command has been called in
     :param command: the command which triggered sending this DM (direct message)
     :param text: what text to send the user via a DM (direct message)
