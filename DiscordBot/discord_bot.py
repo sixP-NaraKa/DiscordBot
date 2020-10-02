@@ -4,6 +4,7 @@
 Copyright © 2020 https://github.com/sixP-NaraKa - and all that shit.
 Testing the Discord Bot functions and stuff.
 
+Main class/file. 
 The corresponding commands have been moved to different files and their classes.
 Easier time to manage the code.
 
@@ -25,7 +26,8 @@ from API.DiscordBot.commands_channel_bot import ChannelServer
 from API.DiscordBot.commands_misc_bot import Misc
 from API.DiscordBot.commands_aoe_bot import AoE
 
-# pass_context=True bei den commands maybe not even needed. Seems to work fine. :/ Hmm, maybe it doesn't do what I think
+# pass_context=True: with the .commands maybe not even needed.
+# Seems to work fine. :/ Hmm, maybe it doesn't do what I think it does
 
 load_dotenv("..\\DiscordBot\\.env.txt")
 TOKEN = os.getenv("DISCORD_TOKEN")
