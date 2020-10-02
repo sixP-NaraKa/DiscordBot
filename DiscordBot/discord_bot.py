@@ -1,4 +1,4 @@
-# bot.py
+# discord_bot.py
 
 """
 Copyright © 2020 https://github.com/sixP-NaraKa - and all that shit.
