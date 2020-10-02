@@ -12,7 +12,7 @@ See:
 - .command_channel_bot
 - .command_misc_bot
 - .command_aoe_bot
-- .standard-functions_bot
+- .standard_functions_bot
 """
 
 import os
@@ -25,6 +25,7 @@ import logging
 from API.DiscordBot.commands_channel_bot import ChannelServer
 from API.DiscordBot.commands_misc_bot import Misc
 from API.DiscordBot.commands_aoe_bot import AoE
+
 
 # pass_context=True: with the .commands maybe not even needed.
 # Seems to work fine. :/ Hmm, maybe it doesn't do what I think it does
