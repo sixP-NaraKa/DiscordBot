@@ -8,6 +8,7 @@ Testing the Discord Bot functions and stuff.
 import discord
 from discord.ext import commands
 
+# where the other file(s) are located at to import from
 from API.DiscordBot.standard_functions_bot import send_dm
 
 
