@@ -244,8 +244,9 @@ class ChannelServer(discord.ext.commands.Cog):
         # can do only one return, since in this case here it works just fine
         user = ctx.author
         guild = ctx.guild
+        category = ctx.channel.category
         channel = ctx.channel
         triggered_command = ctx.command
-        await send_dm(user=user, guild=guild, channel=channel, command=triggered_command, text=members,
-                      info=general_info)
+        await send_dm(user=user, guild=guild, category=category, channel=channel, command=triggered_command, 
+                      text=members, info=general_info)
         return await ctx.send(f"Sent you (@{user}) a DM containing more detailed information. :smiley:")
