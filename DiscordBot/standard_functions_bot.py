@@ -5,7 +5,7 @@ Testing the Discord Bot functions and stuff.
 """
 
 
-async def send_dm(user, guild, channel, command, text, info=""):
+async def send_dm(user, guild, category, channel, command, text, info=""):
     """
     A method to send a user whatever text this method has received.
 
@@ -21,6 +21,6 @@ async def send_dm(user, guild, channel, command, text, info=""):
 
     await user.create_dm()
     await user.dm_channel.send(f"This DM has been triggered by command '!{command}' "
-                               f"from guild/server '{guild}' in channel '{channel}'.\n"
+                               f"from guild/server '{guild}' in channel '{channel}' (in category '{category}').\n"
                                f"\n{info}"
                                f"\n{text}")
