@@ -9,9 +9,10 @@ The corresponding commands have been moved to different files and their classes.
 Easier time to manage the code.
 
 See:
-- .command_server_bot
-- .command_misc_bot
-- .command_aoe_bot
+- .commands_server_bot
+- .commands_misc_bot
+- .commands_aoe_bot
+- .commands_poe_bot
 - .standard_functions_bot
 """
 
@@ -25,6 +26,7 @@ import logging
 from API.DiscordBot.commands_server_bot import Server
 from API.DiscordBot.commands_misc_bot import Misc
 from API.DiscordBot.commands_aoe_bot import AoE
+from API.DiscordBot.commands_poe_bot import PoE
 
 
 # pass_context=True: with the .commands maybe not even needed.
@@ -41,6 +43,7 @@ logging.basicConfig(level=logging.INFO)
 bot.add_cog(Server())
 bot.add_cog(Misc())
 bot.add_cog(AoE())
+bor.add_cog(PoE())
 
 
 """ BOT EVENTS """
