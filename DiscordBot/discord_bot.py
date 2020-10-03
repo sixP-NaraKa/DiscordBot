@@ -9,7 +9,7 @@ The corresponding commands have been moved to different files and their classes.
 Easier time to manage the code.
 
 See:
-- .command_channel_bot
+- .command_server_bot
 - .command_misc_bot
 - .command_aoe_bot
 - .standard_functions_bot
@@ -22,7 +22,7 @@ from dotenv import load_dotenv
 import logging
 
 # where the other files are located at to import from
-from API.DiscordBot.commands_channel_bot import ChannelServer
+from API.DiscordBot.commands_server_bot import Server
 from API.DiscordBot.commands_misc_bot import Misc
 from API.DiscordBot.commands_aoe_bot import AoE
 
@@ -38,7 +38,7 @@ bot = commands.Bot(command_prefix="!")
 logging.basicConfig(level=logging.INFO)
 
 # adding the command categories as well as their commands
-bot.add_cog(ChannelServer())
+bot.add_cog(Server())
 bot.add_cog(Misc())
 bot.add_cog(AoE())
 
