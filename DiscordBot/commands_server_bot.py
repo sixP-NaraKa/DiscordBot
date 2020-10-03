@@ -12,7 +12,7 @@ from discord.ext import commands
 from API.DiscordBot.standard_functions_bot import send_dm
 
 
-class ChannelServer(discord.ext.commands.Cog):
+class Server(discord.ext.commands.Cog):
     """ Channel and Guild/Server related commands """
 
     @commands.command(name="create-category",
