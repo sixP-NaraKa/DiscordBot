@@ -127,20 +127,57 @@ class PoE(discord.ext.commands.Cog):
                            "(but not needed). Defaults to comparison against: Chaos Orb."
                            "\nNote: names are case sensitive!")
     async def get_curr_price(self, ctx, currency_name, comparison_item_name="Chaos Orb"):
+        """
+        Command:\n
+        Looks up the given currency name and its price compared to another currency (usually Chaos Orb).
+        Uses the function :get_price(): for the main logic.
+
+        :param ctx: the Context data (gets it from Discord)
+        :param currency_name: the currency to search for
+        :param comparison_item_name: optional - the name of the currency to make the comparison against
+        (defaults to Chaos Orb if left empty)
+
+        :return: sends the extracted information to the channel it was called from
+        """
+        
         price_info = get_price(item_name=currency_name, comp_item_name=comparison_item_name)
         await ctx.send(f"{price_info}")
 
     @commands.command(name="exalt",
-                      help="Returns back the current rough price of an Exalted Orb.")
+                      help="Returns back the current rough price of an Exalted Orb."
+                      "\nUse the !price command for other currencies.")
     async def get_price_exalt(self, ctx):
+        """
+        Command:\n
+        Returns the price of the Exalted Orb only (compared to Chaos Orb).
+
+        For other currencies, use the :get_curr_price(): command function.
+
+        :param ctx: the Context data (gets it from Discord)
+
+        :return: sends the extracted information to the channel it was called from
+        """
+      
         item_name = "Exalted Orb"
         # item_id = 6  # Exalt ID in poe.trade
         price_info = get_price(item_name=item_name)  # 2. item_id=item_id,
         await ctx.send(f"{price_info}")
 
     @commands.command(name="chaos",
-                      help="Returns back the current rough price of an Chaos orb.")
+                      help="Returns back the current rough price of an Chaos Orb."
+                      "\nUse the !price command for other currencies.")
     async def get_price_chaos(self, ctx):
+        """
+        Command:\n
+        Returns the price of the Chaos Orb only (compared to Exalted Orb).
+
+        For other currencies, use the :get_curr_price(): command function.
+
+        :param ctx: the Context data (gets it from Discord)
+
+        :return: sends the extracted information to the channel it was called from
+        """
+        
         item_name = "Chaos Orb"
         # item_id = 4  # Chaos ID in poe.trade
         # comp_item_id = 6  # Exalt ID in poe.trade
