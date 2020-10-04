@@ -6,6 +6,7 @@ Testing the Discord Bot functions and stuff.
 
 import requests
 import re
+from time import sleep
 
 import discord
 from discord.ext import commands
@@ -14,6 +15,10 @@ import matplotlib.pyplot as plt
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import bs4
+import numpy as np
+import PIL
+from PIL import Image
+from pyperclip import paste
 
 
 # two dictionaries of the PoE currency items (in poe.trade)
@@ -200,3 +205,94 @@ class PoE(discord.ext.commands.Cog):
         have_item = "Exalted Orb"
         price_info = get_price(want_currency=want_item, have_currency=have_item)
         await ctx.send(f"{price_info}")
+
+    @commands.command(name="item",
+                      help="Searches for a given item and its (at this time) sockets and linked sockets."
+                           "A screenshot of the item, "
+                           "as well as a direct whisper which you can use, will be returned.")
+    async def get_item(self, ctx, item_of_interest, socket_count_min="6", linked_sockets_min="6"):
+        """
+        Command:\n
+        Searches for a given item on poe.trade and gives back the first found result as a screenshot back.
+
+        As it is now it has very limited use-cases, but will be building upon it to accept more
+        additional stats/criteria.
+
+        :param ctx: the Context data (gets it from Discord)
+        :param item_of_interest: the name of the item you want to look for
+        :param socket_count_min: the min amount of sockets the item should have - defaults to 6 (max amount)
+        :param linked_sockets_min: the min amount of linked sockets the item should have - defaults to 6 (max amount)
+
+        :return: a message containing the extracted information to the user/channel it was called from
+        """
+
+        # path to the webdriver (geckodriver) for FireFox
+        gecko_path = "..\\Screenshots\\geckodriver-v0.27.0-win32\\geckodriver.exe"
+
+        driver = webdriver.Firefox(executable_path=gecko_path)
+        # path to the uBlock .xpi file - needs to be the full file path, otherwise it won't work
+        addon_path = "C:\\Users\\IEUser\\IdeaProjects\\PythonStuff\\API\\" \
+                     "Screenshots\\uBlock0_1.30.1b3.firefox.signed.xpi"
+        driver.install_addon(path=addon_path)
+        driver.maximize_window()
+
+        base_url = "https://poe.trade/"
+        driver.get(base_url)
+
+        input_item = driver.find_element_by_id("name")
+        input_item.send_keys(item_of_interest)  # + Keys.ENTER
+
+        sockets_min = driver.find_element_by_name("sockets_min")
+        sockets_min.send_keys(socket_count_min)
+
+        linked_min = driver.find_element_by_name("link_min")
+        linked_min.send_keys(linked_sockets_min + Keys.ENTER)  # just press ENTER here, will do more criteria soon
+
+        # a little sleep to the driver/browser ain't to fast for the taking of the screenshots in a moment
+        sleep(2)
+        # search_button = driver.find_element_by_class_name("search button")
+        # search_button.click()
+
+        # a simple check to see if any results came up
+        if "Nothing was found. Try widening your search criteria." in driver.page_source:
+            return await ctx.send(f"No item with name {item_of_interest} could be found.")
+
+        # if results came up, extract the first item via screenshot(s) and present them to the user
+
+        # the 1st part of the listing - the item screenshot, as well as its stats
+        first_item = driver.find_element_by_xpath("/html/body/div[2]/div/div[3]/div/div/div[4]"
+                                                  "/div[1]/table/tbody[1]/tr[1]")
+        first_item.screenshot("..\\Screenshots\\first_item.png")
+
+        # the 2nd part of the listing - contains the price as well as who is selling it
+        sold_by = driver.find_element_by_xpath("/html/body/div[2]/div/div[3]/div/div/div[4]"
+                                               "/div[1]/table/tbody[1]/tr[2]")
+        sold_by.screenshot("..\\Screenshots\\first_item_sold_by.png")
+
+        # the "Whisper" button on the page - copies the direct whisper into the clipboard
+        whisper = driver.find_element_by_xpath("/html/body/div[2]/div/div[3]/div/div/div[4]"
+                                               "/div[1]/table/tbody[1]/tr[2]/td[2]/span/ul/li[4]/a")
+        whisper.click()
+
+        search_url = driver.current_url
+        driver.close()
+
+        """ # credit for the following image merging via PIL to https://stackoverflow.com/a/30228789 
+            # using a little modified version, so it doesn't resize the pictures (don't need this in my case)
+        """
+        # with this here in general, the images need to be of the same dimension(s) (at least other images with
+        # with different dimensions (in this case at least different width) are not working) - tried with vstack()
+        list_images = ["..\\Screenshots\\first_item.png",
+                       "..\\Screenshots\\first_item_sold_by.png"]
+        images = [PIL.Image.open(img) for img in list_images]
+        # if horizontal alignment, use hstack() - vertical, use vstack()
+        images_combined = np.vstack(img for img in images)
+
+        image_final = PIL.Image.fromarray(images_combined)
+        image_final.save("..\\Screenshots\\1_item.png")
+
+        await ctx.send(f"@{ctx.author} - see following information regarding your requested search:\n"
+                       f"URL: {search_url}"
+                       f"\nWhisper: \n{paste()}",  # using pyperclip's .paste() method to paste from the clipboard
+                       file=discord.File("..\\Screenshots\\1_item.png"))
+        
