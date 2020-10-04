@@ -231,8 +231,7 @@ class PoE(discord.ext.commands.Cog):
 
         driver = webdriver.Firefox(executable_path=gecko_path)
         # path to the uBlock .xpi file - needs to be the full file path, otherwise it won't work
-        addon_path = "C:\\Users\\IEUser\\IdeaProjects\\PythonStuff\\API\\" \
-                     "Screenshots\\uBlock0_1.30.1b3.firefox.signed.xpi"
+        addon_path = "PATH_TO_ADDON_HERE\\uBlock0_1.30.1b3.firefox.signed.xpi"
         driver.install_addon(path=addon_path)
         driver.maximize_window()
 
