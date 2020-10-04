@@ -38,7 +38,7 @@ currencies = {"Orb of Alteration": 1, "Orb of Fusing": 2, "Orb of Alchemy": 3, "
               "Mirror of Kalandra": 24, "Eternal Orb": 25, "Perandus Coin": 26, "Silver Coin": 27}
 
 
-def get_price(want_currency, have_currency="Chaos Orb"):  # 2. want_item_id=6, 3. have_item_id=4
+def get_price(want_currency, have_currency="Chaos Orb"):
     """ General method for searching for the price of a given Currency item in Path of Exile.
 
         This method is easily reusable and makes it easier to search for specific currency items.
