@@ -77,4 +77,4 @@ class Misc(discord.ext.commands.Cog):
         :return: the gif
         """
         # user = ctx.author
-        return await ctx.send(file=discord.File("C:\\Users\\IEUser\\Pictures\\external-content.duckduckgo.com.gif"))
+        return await ctx.send(file=discord.File("..\\Screenshots\\external-content.duckduckgo.com.gif"))
