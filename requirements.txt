@@ -5,3 +5,4 @@ matplotlib
 bs4
 selenium
 PIL
+pyperclip
