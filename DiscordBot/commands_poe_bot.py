@@ -48,7 +48,6 @@ def get_price(want_currency, have_currency="Chaos Orb"):
 
         Instead of using the dict(s), you could also only take the ID's, though then you would have to memorize them.
         Then you could take the names during the parsing process.
-        Also you could use the search function on the site via selenium, though this might take longer (performance).
         I think I am happy as it is. Will expand the dict with all the rest of the currency items -
         at least the basic ones soon-ish. ;)
 
