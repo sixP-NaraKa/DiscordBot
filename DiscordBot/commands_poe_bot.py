@@ -149,6 +149,7 @@ class PoE(discord.ext.commands.Cog):
                            "(item you have) can be passed too "
                            "(but not needed). Defaults to comparison against: Chaos Orb."
                            "\nNote: names are case sensitive!")
+    @commands.guild_only()
     async def get_curr_price(self, ctx, want_currency, have_currency="Chaos Orb"):
         """
         Command:\n
@@ -169,6 +170,7 @@ class PoE(discord.ext.commands.Cog):
     @commands.command(name="exalt",
                       help="Returns back the current rough price of an Exalted Orb."
                            "\nUse the !price command for other currencies.")
+    @commands.guild_only()
     async def get_price_exalt(self, ctx):
         """
         Command:\n
@@ -189,6 +191,7 @@ class PoE(discord.ext.commands.Cog):
     @commands.command(name="chaos",
                       help="Returns back the current rough price of an Chaos Orb."
                            "\nUse the !price command for other currencies.")
+    @commands.guild_only()
     async def get_price_chaos(self, ctx):
         """
         Command:\n
@@ -210,6 +213,7 @@ class PoE(discord.ext.commands.Cog):
                       help="Searches for a given item and its (at this time) sockets and linked sockets."
                            "A screenshot of the item, "
                            "as well as a direct whisper which you can use, will be returned.")
+    @commands.guild_only()
     async def get_item(self, ctx, item_of_interest, socket_count_min="6", linked_sockets_min="6"):
         """
         Command:\n
