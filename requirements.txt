@@ -4,5 +4,6 @@ pandas
 matplotlib
 bs4
 selenium
+numpy
 PIL
 pyperclip
