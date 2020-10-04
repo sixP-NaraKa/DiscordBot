@@ -226,7 +226,7 @@ class PoE(discord.ext.commands.Cog):
         :return: a message containing the extracted information to the user/channel it was called from
         """
 
-        # path to the webdriver (geckodriver) for FireFox
+        # path to the webdriver (geckodriver) for FireFox - either file path or add it to the PATH env. variable
         gecko_path = "..\\Screenshots\\geckodriver-v0.27.0-win32\\geckodriver.exe"
 
         driver = webdriver.Firefox(executable_path=gecko_path)
