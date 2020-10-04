@@ -24,15 +24,21 @@ import bs4
 currency_dict = {1: "Orb of Alteration", 2: "Orb of Fusing", 3: "Orb of Alchemy", 4: "Chaos Orb", 5: "Gemcutter's Prism",
                  6: "Exalted Orb", 7: "Chromatic Orb", 8: "Jeweller's Orb", 9: "Orb of Chance",
                  10: "Cartographer's Chisel", 11: "Orb of Scouring", 13: "Orb of Regret", 14: "Regal Orb",
-                 15: "Divine Orb", 16: "Vaal Orb"}
+                 15: "Divine Orb", 16: "Vaal Orb", 17: "Scroll of Wisdom", 18: "Portal Scroll", 19: "Armourer's Scrap,",
+                 20: "Blacksmith's Whetstone", 21: "Glassblower's Bauble", 22: "Orb of Transmutation",
+                 23: "Orb of Augmentation", 24: "Mirror of Kalandra", 25: "Eternal Orb", 26: "Perandus Coin",
+                 27: "Silver Coin"}
 
 # same as above, but order different: key = name, value = ID
 currencies = {"Orb of Alteration": 1, "Orb of Fusing": 2, "Orb of Alchemy": 3, "Chaos Orb": 4, "Gemcutter's Prism": 5,
               "Exalted Orb": 6, "Chromatic Orb": 7, "Jeweller's Orb": 8, "Orb of Chance": 9, "Cartographer's Chisel": 10,
-              "Orb of Scouring": 11, "Orb of Regret": 13, "Regal Orb": 14, "Divine Orb": 15, "Vaal Orb": 16}
+              "Orb of Scouring": 11, "Orb of Regret": 13, "Regal Orb": 14, "Divine Orb": 15, "Vaal Orb": 16,
+              "Scroll of Widsom": 17, "Portal Scroll": 18, "Armourer's Scrap": 19, "Blacksmith's Whetstone": 20,
+              "Glassblower's Bauble": 21, "Orb of Transmutation": 22, "Orb of Augmentation": 23,
+              "Mirror of Kalandra": 24, "Eternal Orb": 25, "Perandus Coin": 26, "Silver Coin": 27}
 
 
-def get_price(item_name, comp_item_name="Chaos Orb"):  # 2. item_id=6, 3. comp_item_id=4
+def get_price(want_currency, have_currency="Chaos Orb"):
     """ General method for searching for the price of a given Currency item in Path of Exile.
 
         This method is easily reusable and makes it easier to search for specific currency items.
@@ -42,55 +48,65 @@ def get_price(item_name, comp_item_name="Chaos Orb"):  # 2. item_id=6, 3. comp_i
 
         Instead of using the dict(s), you could also only take the ID's, though then you would have to memorize them.
         Then you could take the names during the parsing process.
-        Also you could use the search function on the site via selenium, though this might take longer (performance).
         I think I am happy as it is. Will expand the dict with all the rest of the currency items -
         at least the basic ones soon-ish. ;)
 
         Uses the bs4 module for faster extracting (instead of selenium).
 
-        :param item_name: the name of the item to look for (just for better output) - can also be parsed from the page
-        :param comp_item_name: the item name to compare/price against (usually ID 4, i.e. Chaos Orb)
+        :param want_currency: the name of the item to look for (just for better output) - can also be parsed from the page
+        :param have_currency: the item name to compare/price against (usually ID 4, i.e. Chaos Orb)
 
         :return: returns the extracted information
     """
 
     # if given currency name is NOT in the above dict, return
-    if item_name not in currencies.keys() or comp_item_name not in currencies.keys():
+    if want_currency not in currencies.keys() or want_currency not in currencies.keys():
         return f"This currency item does not exist, please try again."
 
     # if given currency name is in the above dict, continue here
 
     # set the item id and the compare item id to the value of their item names
-    item_id = currencies[item_name]
-    comp_item_id = currencies[comp_item_name]
+    want_item_id = currencies[want_currency]
+    have_item_id = currencies[have_currency]
 
     # if both lookup item and compare item are Chaos, set the compare item to Exalts
-    if item_id == 4 and comp_item_id == 4:
-        comp_item_id = 6
+    if want_item_id == 4 and have_item_id == 4:
+        have_item_id = 6
+        have_currency = "Exalted Orb"
 
-    currency_url = f"https://currency.poe.trade/search?league=Heist&online=x&stock=&want={item_id}&have={comp_item_id}"
+    currency_url = f"https://currency.poe.trade/search?league=Heist&online=x&stock=&want={want_item_id}&have={have_item_id}"
     site = requests.get(currency_url)
     poetrade = bs4.BeautifulSoup(site.text, "html.parser")
 
+    # a check to see if ANYTHING could be found with the given search criteria
+    if "Oopsie! Nothing was found." in poetrade.text:
+        return f"Nothing could be found with item '{want_currency}' and comparison item '{have_currency}'."
+
     # get 5 listings and their pricing, so in order to get a better accurate pricing schema
-    item_one = poetrade.select_one("div.displayoffer:nth-child(4) > div:nth-child(1) "
-                                   "> div:nth-child(1) > small:nth-child(1)")
-    item_two = poetrade.select_one("div.displayoffer:nth-child(5) > div:nth-child(1) "
-                                   "> div:nth-child(1) > small:nth-child(1)")
-    item_three = poetrade.select_one("div.displayoffer:nth-child(6) > div:nth-child(1) "
-                                     "> div:nth-child(1) > small:nth-child(1)")
-    item_four = poetrade.select_one("div.displayoffer:nth-child(7) > div:nth-child(1) "
-                                    "> div:nth-child(1) > small:nth-child(1)")
-    item_five = poetrade.select_one("div.displayoffer:nth-child(8) > div:nth-child(1) "
+    display_offers = poetrade.find_all("div", class_="displayoffer", limit=5)  # up to 5, might not find them all
+
+    # instead of such a solution, you could also just walk down the page elements even more, and get the needed
+    # elements like that, but for now it is working like a charm
+
+    nth_child = 3  # the element to look for, for some searches it starts at 4, and others 3 - see check down here
+    items = []
+    for offer in display_offers:  # since limit=5 above, it only contains UP TO that many page elements
+        item = offer.select_one(f"div.displayoffer:nth-child({nth_child}) > div:nth-child(1) "
+                                "> div:nth-child(1) > small:nth-child(1)")
+        if item is None:  # for whatever reason, some searches for other currencies result in item = None,
+            # 'cause of the nth_child here. For many it starts at 4, and for others it starts at 3, hence the check here
+            item = offer.select_one(f"div.displayoffer:nth-child({nth_child + 1}) > div:nth-child(1) "
                                     "> div:nth-child(1) > small:nth-child(1)")
 
-    items = [item_one.text, item_two.text, item_three.text, item_four.text, item_five.text]
+        items.append(item.text)
+        nth_child += 1
+
     matches = []
 
     # https://stackoverflow.com/questions/4289331/how-to-extract-numbers-from-a-string-in-python/61134895#61134895
     # ^ Credit to this person for the following small section
     # pattern = "[\d]+[.,\d]+|[\d]*[.][\d]+|[\d]+"
-    pattern = "[\d]*[.][\d]+|[\d]+"  # "|" to separate multiple patterns
+    pattern = r"[\d]+[.,\d]+|[\d]*[.][\d]+|[\d]+"  # "|" to separate multiple patterns
     joined_items = "   ".join(items)
     if re.search(pattern, joined_items) is not None:
         for catch in re.finditer(pattern, joined_items):
@@ -98,6 +114,9 @@ def get_price(item_name, comp_item_name="Chaos Orb"):  # 2. item_id=6, 3. comp_i
             matches.append(catch[0])
             # it still catches the single "1"'s there, but not sure how to completely avoid that :/
             # will just write each catch[0] into a list, and then simply take every 2nd entry in that list LUL
+    else:
+        return f"Something went wrong... Please try again. If this problem persists, " \
+               f"please contact the creator of this Bot."
 
     matches = matches[1::2]
 
@@ -109,11 +128,9 @@ def get_price(item_name, comp_item_name="Chaos Orb"):  # 2. item_id=6, 3. comp_i
     # get the median (rough current price)
     result = sum_prices / len(matches)
 
-    # get the compare item name via its ID - not really needed anymore, since we have it above already, but whatever
-    comp_item_name = currency_dict[comp_item_id]
-    return "One '{}' is worth roughly {:.4f} {}s. 10 roughly {:.4f}. \nURL: {}".format(item_name,
+    return "One '{}' is worth roughly {:.4f} {}s. 10 roughly {:.4f}. \nURL: {}".format(want_currency,
                                                                                        result,
-                                                                                       comp_item_name,
+                                                                                       have_currency,
                                                                                        result * 10,
                                                                                        currency_url)
 
@@ -123,29 +140,30 @@ class PoE(discord.ext.commands.Cog):
 
     @commands.command(name="price",
                       help="Returns back the current rough price of a given currency (in Chaos by default)."
-                           "\nOnly the currency name is needed, optional comparison item name can be passed too "
+                           "\nOnly the currency name is needed (item you want), optional comparison item name "
+                           "(item you have) can be passed too "
                            "(but not needed). Defaults to comparison against: Chaos Orb."
                            "\nNote: names are case sensitive!")
-    async def get_curr_price(self, ctx, currency_name, comparison_item_name="Chaos Orb"):
+    async def get_curr_price(self, ctx, want_currency, have_currency="Chaos Orb"):
         """
         Command:\n
         Looks up the given currency name and its price compared to another currency (usually Chaos Orb).
         Uses the function :get_price(): for the main logic.
 
         :param ctx: the Context data (gets it from Discord)
-        :param currency_name: the currency to search for
-        :param comparison_item_name: optional - the name of the currency to make the comparison against
+        :param want_currency: the currency to search for
+        :param have_currency: optional - the name of the currency to make the comparison against
         (defaults to Chaos Orb if left empty)
 
         :return: sends the extracted information to the channel it was called from
         """
-        
-        price_info = get_price(item_name=currency_name, comp_item_name=comparison_item_name)
+
+        price_info = get_price(want_currency=want_currency, have_currency=have_currency)
         await ctx.send(f"{price_info}")
 
     @commands.command(name="exalt",
                       help="Returns back the current rough price of an Exalted Orb."
-                      "\nUse the !price command for other currencies.")
+                           "\nUse the !price command for other currencies.")
     async def get_price_exalt(self, ctx):
         """
         Command:\n
@@ -157,15 +175,15 @@ class PoE(discord.ext.commands.Cog):
 
         :return: sends the extracted information to the channel it was called from
         """
-      
-        item_name = "Exalted Orb"
-        # item_id = 6  # Exalt ID in poe.trade
-        price_info = get_price(item_name=item_name)  # 2. item_id=item_id,
+
+        want_item = "Exalted Orb"
+        have_item = "Chaos Orb"
+        price_info = get_price(want_currency=want_item, have_currency=have_item)
         await ctx.send(f"{price_info}")
 
     @commands.command(name="chaos",
                       help="Returns back the current rough price of an Chaos Orb."
-                      "\nUse the !price command for other currencies.")
+                           "\nUse the !price command for other currencies.")
     async def get_price_chaos(self, ctx):
         """
         Command:\n
@@ -177,9 +195,8 @@ class PoE(discord.ext.commands.Cog):
 
         :return: sends the extracted information to the channel it was called from
         """
-        
-        item_name = "Chaos Orb"
-        # item_id = 4  # Chaos ID in poe.trade
-        # comp_item_id = 6  # Exalt ID in poe.trade
-        price_info = get_price(item_name=item_name)  # 2. item_id=item_id, 3. comp_item_id=comp_item_id
+
+        want_item = "Chaos Orb"
+        have_item = "Exalted Orb"
+        price_info = get_price(want_currency=want_item, have_currency=have_item)
         await ctx.send(f"{price_info}")
