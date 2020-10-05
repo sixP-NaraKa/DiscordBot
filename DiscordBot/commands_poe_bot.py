@@ -258,9 +258,14 @@ class PoE(discord.ext.commands.Cog):
 
         # a simple check to see if any results came up
         if "Nothing was found. Try widening your search criteria." in driver.page_source:
+            driver.close()
             return await ctx.send(f"No item with name {item_of_interest} could be found.")
 
         # if results came up, extract the first item via screenshot(s) and present them to the user
+        
+        # the whole first item table body screenshot - no need to merge the two images down below - but nice to have
+        # item_table = driver.find_element_by_id("item-container-0")
+        # item_table.screenshot("..\\Screenshots\\first_item_table.png")
 
         # the 1st part of the listing - the item screenshot, as well as its stats
         first_item = driver.find_element_by_xpath("/html/body/div[2]/div/div[3]/div/div/div[4]"
@@ -282,6 +287,7 @@ class PoE(discord.ext.commands.Cog):
 
         """ # credit for the following image merging via PIL to https://stackoverflow.com/a/30228789 
             # using a little modified version, so it doesn't resize the pictures (don't need this in my case)
+            # additionally, merging might not even be necessary here, since you can also just take the whole item table
         """
         # with this here in general, the images need to be of the same dimension(s) (at least other images with
         # with different dimensions (in this case at least different width) are not working) - tried with vstack()
