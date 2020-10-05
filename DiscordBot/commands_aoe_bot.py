@@ -5,12 +5,12 @@ Testing the Discord Bot functions and stuff.
 """
 
 
-import requests
-
 import discord
 from discord.ext import commands
 import pandas as pd
 import matplotlib.pyplot as plt
+
+from API.DiscordBot.standard_functions_bot import get_request_response
 
 
 class AoE(discord.ext.commands.Cog):
@@ -37,8 +37,8 @@ class AoE(discord.ext.commands.Cog):
 
         await ctx.send("In process. Might take a little. :)")
         aoe2_api = "https://aoe2.net/api/stats/players?game=aoe2de"
-        response = requests.get(aoe2_api)
-        data = response.json()
+
+        data = get_request_response(aoe2_api, json=True)
         players = data["player_stats"][0]["num_players"]
 
         # series = pd.Series(players).to_string()

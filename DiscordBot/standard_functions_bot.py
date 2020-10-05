@@ -5,6 +5,19 @@ Testing the Discord Bot functions and stuff.
 """
 
 
+import requests
+
+import bs4
+from selenium import webdriver
+import numpy as np
+import PIL
+from PIL import Image
+
+
+gecko_path = "..\\Screenshots\\geckodriver-v0.27.0-win32\\geckodriver.exe"
+ublock_addon_ff = "C:\\INSERT_PATH_TO_ADDON_HERE\\Screenshots\\uBlock0_1.30.1b3.firefox.signed.xpi"
+
+
 async def send_dm(user, guild, category, channel, command, text, info=""):
     """
     A method to send a user whatever text this method has received.
@@ -20,8 +33,91 @@ async def send_dm(user, guild, category, channel, command, text, info=""):
     :return: nothing needs to be returned
     """
 
+    # category = channel.category
     await user.create_dm()
     await user.dm_channel.send(f"This DM has been triggered by command '!{command}' "
                                f"from guild/server '{guild}' in channel '{channel}' (in category '{category}').\n"
                                f"\n{info}"
                                f"\n{text}")
+
+
+def get_request_response(link, json=True):
+    """
+    Returns only the request response - in json format if desired (for API calls, etc.).
+
+    :param link: the link to get a request from
+    :param json: return in json format if desired - defaults to True if left empty
+
+    :return: the plain response - in json format if json=True
+    """
+
+    response = requests.get(link)
+    if json:
+        return response.json()
+    else:
+        return response
+
+
+def get_parser(link):
+    """
+    Returns a bs4 (BeautifulSoup) parser from the given URL.
+
+    :param link: the link to get a request from
+
+    :return: the BeautifulSoup object
+    """
+
+    response = requests.get(link)
+    parser = bs4.BeautifulSoup(response.text, "html.parser")
+    return parser
+
+
+def initialize_driver(driver, addon_ublock=True):
+    """
+    Initializes a given driver (selenium).
+
+    :param driver: the name of the driver to initialize
+    :param addon_ublock: addon to install with the initialization of the driver - defaults to True
+
+    :return: the initialized driver
+    """
+
+    if driver == "Firefox":
+        try:
+            driver = webdriver.Firefox(executable_path=gecko_path)
+            if addon_ublock:
+                driver.install_addon(ublock_addon_ff)
+            driver.maximize_window()
+        except Exception as ex:
+            return str(ex)
+        return driver
+    else:
+        return f"No driver with name {driver} could be found."
+
+
+def merge_images(list_images, file_name):
+    """
+    Merges n images together (careful about the dimensions!).
+    Might not look good depending on the dimensions of the images used. :D
+
+    :param list_images: list of images to be merged together
+    :param file_name: the file_name to save the merged image file under - overwrites existing ones!
+
+    :return: the filepath to the merged image file
+    """
+
+    """ # credit for the following image merging via PIL to https://stackoverflow.com/a/30228789
+        # using a little modified version, so it doesn't resize the pictures (don't need this in my case)
+        # additionally, merging might not even be necessary here, since you can also just take the whole item table
+    """
+    # with this here in general, the images need to be of the same dimension(s) (at least other images with
+    # with different dimensions (in this case at least different width) are not working) - tried with vstack()
+    images = [PIL.Image.open(img) for img in list_images]
+    # if horizontal alignment, use hstack() - vertical, use vstack()
+    images_combined = np.vstack(img for img in images)
+
+    image_final = PIL.Image.fromarray(images_combined)
+    image_final_path = f"..\\Screenshots\\{file_name}.png"
+    image_final.save(image_final_path)
+
+    return image_final_path

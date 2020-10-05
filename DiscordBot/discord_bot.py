@@ -4,7 +4,7 @@
 Copyright © 2020 https://github.com/sixP-NaraKa - and all that shit.
 Testing the Discord Bot functions and stuff.
 
-Main class/file. 
+Main class/file.
 The corresponding commands have been moved to different files and their classes.
 Easier time to manage the code.
 
@@ -16,17 +16,19 @@ See:
 - .standard_functions_bot
 """
 
+
 import os
 
 from discord.ext import commands
 from dotenv import load_dotenv
 import logging
 
-# where the other files are located at to import from
+# where the other file(s) are located at to import from
 from API.DiscordBot.commands_server_bot import Server
 from API.DiscordBot.commands_misc_bot import Misc
 from API.DiscordBot.commands_aoe_bot import AoE
 from API.DiscordBot.commands_poe_bot import PoE
+from API.DiscordBot.testing_commands import Testing
 
 
 # pass_context=True: with the .commands maybe not even needed.
@@ -43,7 +45,8 @@ logging.basicConfig(level=logging.INFO)
 bot.add_cog(Server())
 bot.add_cog(Misc())
 bot.add_cog(AoE())
-bor.add_cog(PoE())
+bot.add_cog(PoE())
+bot.add_cog(Testing())
 
 
 """ BOT EVENTS """
@@ -58,9 +61,6 @@ async def on_ready():
 
     :return: a string, saying that the Bot has successfully connected to Discord
     """
-
-    # info = await bot.application_info()
-    # print(f"This Bot has been created by {info.owner}")
 
     # ctx.bot.... can also be used
     return f"{bot.user.name} has connected to Discord!"

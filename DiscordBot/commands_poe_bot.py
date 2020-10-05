@@ -4,21 +4,16 @@ Copyright © 2020 https://github.com/sixP-NaraKa - and all that shit.
 Testing the Discord Bot functions and stuff.
 """
 
-import requests
+
 import re
 from time import sleep
 
 import discord
 from discord.ext import commands
-import pandas as pd
-import matplotlib.pyplot as plt
-from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-import bs4
-import numpy as np
-import PIL
-from PIL import Image
 from pyperclip import paste
+
+from API.DiscordBot.standard_functions_bot import get_parser, initialize_driver, merge_images
 
 
 # two dictionaries of the PoE currency items (in poe.trade)
@@ -79,9 +74,9 @@ def get_price(want_currency, have_currency="Chaos Orb"):
         have_item_id = 6
         have_currency = "Exalted Orb"
 
-    currency_url = f"https://currency.poe.trade/search?league=Heist&online=x&stock=&want={want_item_id}&have={have_item_id}"
-    site = requests.get(currency_url)
-    poetrade = bs4.BeautifulSoup(site.text, "html.parser")
+    currency_url = f"https://currency.poe.trade/search?league=Heist&online=x&stock=&" \
+                   f"want={want_item_id}&have={have_item_id}"
+    poetrade = get_parser(currency_url)
 
     # a check to see if ANYTHING could be found with the given search criteria
     if "Oopsie! Nothing was found." in poetrade.text:
@@ -133,6 +128,8 @@ def get_price(want_currency, have_currency="Chaos Orb"):
     # get the median (rough current price)
     result = sum_prices / len(matches)
 
+    # get the compare item name via its ID - not really needed anymore, since we have it above already, but whatever
+    # comp_item_name = currency_dict[have_item_id]
     return "One '{}' is worth roughly {:.4f} {}s. 10 roughly {:.4f}. \nURL: {}".format(want_currency,
                                                                                        result,
                                                                                        have_currency,
@@ -230,14 +227,18 @@ class PoE(discord.ext.commands.Cog):
         :return: a message containing the extracted information to the user/channel it was called from
         """
 
-        # path to the webdriver (geckodriver) for FireFox - either file path or add it to the PATH env. variable
-        gecko_path = "..\\Screenshots\\geckodriver-v0.27.0-win32\\geckodriver.exe"
+        driver = initialize_driver(driver="Firefox", addon_ublock=True)
+        # if not isinstance(driver, selenium.webdriver.Firefox):
+        #     return await ctx.send(f"Error: could not initialize the webdriver. Please try again.\n"
+        #                           f"If the problem persists, contact the creator of this Bot.")
 
-        driver = webdriver.Firefox(executable_path=gecko_path)
-        # path to the uBlock .xpi file - needs to be the full file path, otherwise it won't work
-        addon_path = "PATH_TO_ADDON_HERE\\uBlock0_1.30.1b3.firefox.signed.xpi"
-        driver.install_addon(path=addon_path)
-        driver.maximize_window()
+        # weird ass checks, will add more to them
+        if type(driver) == str:
+            if "PATH" in driver:
+                return await ctx.send("The webdriver could not be initialized. The webdriver path may be missing or "
+                                      "something unexpected happened. \nPlease contact the creator of this Bot.")
+            return await ctx.send("Could not find the webdriver specified.\nIf the problem persists, "
+                                  "contact the creator of this Bot.")
 
         base_url = "https://poe.trade/"
         driver.get(base_url)
@@ -259,10 +260,10 @@ class PoE(discord.ext.commands.Cog):
         # a simple check to see if any results came up
         if "Nothing was found. Try widening your search criteria." in driver.page_source:
             driver.close()
-            return await ctx.send(f"No item with name {item_of_interest} could be found.")
+            return await ctx.send(f"No item with name '{item_of_interest}' could be found.")
 
         # if results came up, extract the first item via screenshot(s) and present them to the user
-        
+
         # the whole first item table body screenshot - no need to merge the two images down below - but nice to have
         # item_table = driver.find_element_by_id("item-container-0")
         # item_table.screenshot("..\\Screenshots\\first_item_table.png")
@@ -285,23 +286,12 @@ class PoE(discord.ext.commands.Cog):
         search_url = driver.current_url
         driver.close()
 
-        """ # credit for the following image merging via PIL to https://stackoverflow.com/a/30228789 
-            # using a little modified version, so it doesn't resize the pictures (don't need this in my case)
-            # additionally, merging might not even be necessary here, since you can also just take the whole item table
-        """
-        # with this here in general, the images need to be of the same dimension(s) (at least other images with
-        # with different dimensions (in this case at least different width) are not working) - tried with vstack()
         list_images = ["..\\Screenshots\\first_item.png",
                        "..\\Screenshots\\first_item_sold_by.png"]
-        images = [PIL.Image.open(img) for img in list_images]
-        # if horizontal alignment, use hstack() - vertical, use vstack()
-        images_combined = np.vstack(img for img in images)
-
-        image_final = PIL.Image.fromarray(images_combined)
-        image_final.save("..\\Screenshots\\1_item.png")
+        file_name = "first_item_result_screen"
+        merged_image_path = merge_images(list_images=list_images, file_name=file_name)
 
         await ctx.send(f"@{ctx.author} - see following information regarding your requested search:\n"
                        f"URL: {search_url}"
                        f"\nWhisper: \n{paste()}",  # using pyperclip's .paste() method to paste from the clipboard
-                       file=discord.File("..\\Screenshots\\1_item.png"))
-        
+                       file=discord.File(merged_image_path))
