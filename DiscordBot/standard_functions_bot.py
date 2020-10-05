@@ -15,7 +15,7 @@ from PIL import Image
 
 
 gecko_path = "..\\Screenshots\\geckodriver-v0.27.0-win32\\geckodriver.exe"
-ublock_addon_ff = "C:\\Users\\IEUser\\IdeaProjects\\PythonStuff\\API\\Screenshots\\uBlock0_1.30.1b3.firefox.signed.xpi"
+ublock_addon_ff = "C:\\INSERT_PATH_TO_ADDON_HERE\\Screenshots\\uBlock0_1.30.1b3.firefox.signed.xpi"
 
 
 async def send_dm(user, guild, category, channel, command, text, info=""):
