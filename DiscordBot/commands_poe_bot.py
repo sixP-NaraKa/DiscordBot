@@ -65,7 +65,7 @@ def get_price(want_currency, have_currency="Chaos Orb"):
     """
 
     # if given currency name is NOT in the above dict, return
-    if want_currency not in currencies.keys() or want_currency not in currencies.keys():
+    if want_currency not in currencies.keys() or have_currency not in currencies.keys():
         return f"This currency item does not exist, please try again."
 
     # if given currency name is in the above dict, continue here
