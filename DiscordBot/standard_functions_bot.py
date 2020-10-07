@@ -7,6 +7,7 @@ Testing the Discord Bot functions and stuff.
 
 import requests
 
+import discord
 import bs4
 from selenium import webdriver
 import numpy as np
@@ -15,12 +16,12 @@ from PIL import Image
 
 
 gecko_path = "..\\Screenshots\\geckodriver-v0.27.0-win32\\geckodriver.exe"
-ublock_addon_ff = "C:\\INSERT_PATH_TO_ADDON_HERE\\Screenshots\\uBlock0_1.30.1b3.firefox.signed.xpi"
+ublock_addon_ff = "INSERT_PATH_TO_FILE_HERE\\Screenshots\\uBlock0_1.30.1b3.firefox.signed.xpi"
 
 
 async def send_dm(user, guild, category, channel, command, text, info=""):
     """
-    A method to send a user whatever text this method has received.
+    A function to send a user whatever text this function has received.
 
     :param user: the message receiving user
     :param guild: the guild in which the Bot command call has been made from
@@ -39,6 +40,24 @@ async def send_dm(user, guild, category, channel, command, text, info=""):
                                f"from guild/server '{guild}' in channel '{channel}' (in category '{category}').\n"
                                f"\n{info}"
                                f"\n{text}")
+
+
+async def send_image_dm(user, guild, category, channel, command, text, info="", file: discord.File = ""):
+    """
+
+    :param user: the message receiving user
+    :param guild: the guild in which the Bot command call has been made from
+    :param category: the category the command came from (if applicable) - None if the channel is not under a category
+    :param channel: the channel in which the command has been called in
+    :param command: the command which triggered sending this DM (direct message)
+    :param text: what text to send the user via a DM (direct message)
+    :param info: optional additional information, which the user might find useful
+    :param file: an optional parameter to pass the function a file
+
+    :return: nothing needs to be returned
+    """
+
+    pass
 
 
 def get_request_response(link, json=True):
