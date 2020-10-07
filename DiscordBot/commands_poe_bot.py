@@ -13,7 +13,7 @@ from discord.ext import commands
 from selenium.webdriver.common.keys import Keys
 from pyperclip import paste
 
-from API.DiscordBot.standard_functions_bot import get_parser, initialize_driver, merge_images
+from API.DiscordBot.standard_functions_bot import get_parser, initialize_driver
 
 
 # two dictionaries of the PoE currency items (in poe.trade)
@@ -207,31 +207,65 @@ class PoE(discord.ext.commands.Cog):
         await ctx.send(f"{price_info}")
 
     @commands.command(name="item",
-                      help="Searches for a given item and its (at this time) sockets and linked sockets."
-                           "A screenshot of the item, "
-                           "as well as a direct whisper which you can use, will be returned.")
+                      help="Searches for a given item and its (at this time) sockets, linked sockets and colouring. "
+                           "Returns the first 6 results, "
+                           "as well as with direct whispers which you can use.",
+                      ignore_extra=False)
     @commands.guild_only()
-    async def get_item(self, ctx, item_of_interest, socket_count_min="6", linked_sockets_min="6"):
+    async def get_item(self, ctx, item_of_interest, colour_s_l, *args: int):  # :int triggers error if can't convert
         """
         Command:\n
-        Searches for a given item on poe.trade and gives back the first found result as a screenshot back.
+        Searches for a given item on poe.trade and gives back the first 6 found results as screenshots back.
+        Including the whisper to be able to message the seller directly straight away.
+
+        Sends the results per DM to the user who called this command.
 
         As it is now it has very limited use-cases, but will be building upon it to accept more
         additional stats/criteria.
+        Added some more criteria (concerning colouring of the sockets), but of course limited use-cases still apply,
+        because many items have specific stats one wants to look out for, and not only the sockets, etc..
+        This command never was intended to be super complex or anything, was just wanting to do something like this. ;)
 
         :param ctx: the Context data (gets it from Discord)
         :param item_of_interest: the name of the item you want to look for
-        :param socket_count_min: the min amount of sockets the item should have - defaults to 6 (max amount)
-        :param linked_sockets_min: the min amount of linked sockets the item should have - defaults to 6 (max amount)
+        :param colour_s_l: user decides to search for socket colours or linked colours - "l" for linked, "s" for socket
+        :param args: additional criteria - is being used to get socket counts (sockets & links), as well as
+                     the colouring of the individual sockets (r g b w)
+                     and set them according to the order of input
 
         :return: a message containing the extracted information to the user/channel it was called from
         """
 
-        driver = initialize_driver(driver="Firefox", addon_ublock=True)
-        # if not isinstance(driver, selenium.webdriver.Firefox):
-        #     return await ctx.send(f"Error: could not initialize the webdriver. Please try again.\n"
-        #                           f"If the problem persists, contact the creator of this Bot.")
+        # check to see if colour_s_l is either l or s, otherwise notify user
+        if colour_s_l.lower() != "l" and colour_s_l.lower() != "s":
+            return await ctx.send(f"Passed through colour parameter '{colour_s_l}' does not match 's' (sockets only) "
+                                  f"or 'l' (links only).")
 
+        # possible check to also make: see if any of the numbers is smaller than 0, if so, return back and notify user
+        if len(args) >= 6:
+            socket_count_min, linked_sockets_min, r, g, b, w = args[0:6:1]
+
+            # check to see if the number of the sockets is lower than that of the linked socket
+            if socket_count_min < linked_sockets_min:
+                return await ctx.send(f"The number of Sockets '{socket_count_min}' is lower "
+                                      f"than the number of Links '{linked_sockets_min}'.")
+
+            # also there as a check to see if the inputted numbers can be converted to int
+            # NO NEED FOR THIS HONESTLY, SINCE THE CONVERSION AT FUNCTION TOP PARAM *args ALREADY THROWS ERROR
+            # IF CANNOT CONVERT TO INT
+            try:
+                socket_colour_sum = sum([int(r), int(g), int(b), int(w)])
+            except TypeError as te:
+                return await ctx.send(f"One or more of the given Socket Colours "
+                                      f"cannot be converted to the needed datatype (int):"
+                                      f"\n{te.__str__()}")
+            if socket_colour_sum > socket_count_min:  # and/or > than linked_sockets_min
+                return await ctx.send(f"The sum of the Socket Colours '{socket_colour_sum}' cannot exceed "
+                                      f"the number of Sockets '{socket_count_min}' to look for.")
+        else:
+            return await ctx.send(f"Error: expected 6 additional criteria, got {len(args)}")
+
+        driver = initialize_driver(driver="Firefox", addon_ublock=True)
         # weird ass checks, will add more to them
         if type(driver) == str:
             if "PATH" in driver:
@@ -244,18 +278,40 @@ class PoE(discord.ext.commands.Cog):
         driver.get(base_url)
 
         input_item = driver.find_element_by_id("name")
-        input_item.send_keys(item_of_interest)  # + Keys.ENTER
+        input_item.send_keys(item_of_interest)
 
         sockets_min = driver.find_element_by_name("sockets_min")
-        sockets_min.send_keys(socket_count_min)
+        if int(socket_count_min) != 0: sockets_min.send_keys(socket_count_min)
 
         linked_min = driver.find_element_by_name("link_min")
-        linked_min.send_keys(linked_sockets_min + Keys.ENTER)  # just press ENTER here, will do more criteria soon
+        if int(linked_sockets_min) != 0: linked_min.send_keys(linked_sockets_min)
 
-        # a little sleep to the driver/browser ain't to fast for the taking of the screenshots in a moment
-        sleep(2)
-        # search_button = driver.find_element_by_class_name("search button")
-        # search_button.click()
+        # checking what the user passed through as the <colour> param
+        # if it starts with "l" the r g b w variables will be used to colour the linked sockets
+        # anything else are the sockets in general
+        if colour_s_l.lower().startswith("l"):
+            red = driver.find_element_by_name("sockets_r")
+            green = driver.find_element_by_name("sockets_g")
+            blue = driver.find_element_by_name("sockets_b")
+            white = driver.find_element_by_name("sockets_w")
+        else:
+            red = driver.find_element_by_name("linked_r")
+            green = driver.find_element_by_name("linked_g")
+            blue = driver.find_element_by_name("linked_b")
+            white = driver.find_element_by_name("linked_w")
+
+        if int(r) != 0: red.send_keys(r)
+        if int(g) != 0: green.send_keys(g)
+        if int(b) != 0: blue.send_keys(b)
+        if int(w) != 0: white.send_keys(w)
+
+        # just get something else to click and press enter if above checks
+        # (to add the criteria to the search form) here failed
+        level_min = driver.find_element_by_name("rlevel_min")
+        level_min.send_keys(Keys.ENTER)
+
+        # a little sleep to the driver/browser ain't so fast
+        sleep(1)
 
         # a simple check to see if any results came up
         if "Nothing was found. Try widening your search criteria." in driver.page_source:
@@ -264,34 +320,42 @@ class PoE(discord.ext.commands.Cog):
 
         # if results came up, extract the first item via screenshot(s) and present them to the user
 
-        # the whole first item table body screenshot - no need to merge the two images down below - but nice to have
-        # item_table = driver.find_element_by_id("item-container-0")
-        # item_table.screenshot("..\\Screenshots\\first_item_table.png")
+        # iterate over the first table containing UP TO the first 6 results
+        saved_screenshots = []
+        whispers = []
+        for i in range(0, 6, 1):
+            try:
+                file_path = "..\\Screenshots\\table_1_item_" + str(i) + ".png"
+                item = driver.find_element_by_id("item-container-" + str(i))
+                item.screenshot(filename=file_path)
+                saved_screenshots.append(file_path)
+                # + 1 for the whisper since they start at 1
+                whisper = driver.find_element_by_xpath("/html/body/div[2]/div/div[3]/div/div/div[4]/div[1]/table/tbody"
+                                                       "[" + str(i + 1) + "]/tr[2]/td[2]/span/ul/li[4]/a")
+                whisper.click()
+                whispers.append(paste())
+            # sleep(1)
+            except Exception as e:
+                print(f"At run {i}:", e)
 
-        # the 1st part of the listing - the item screenshot, as well as its stats
-        first_item = driver.find_element_by_xpath("/html/body/div[2]/div/div[3]/div/div/div[4]"
-                                                  "/div[1]/table/tbody[1]/tr[1]")
-        first_item.screenshot("..\\Screenshots\\first_item.png")
-
-        # the 2nd part of the listing - contains the price as well as who is selling it
-        sold_by = driver.find_element_by_xpath("/html/body/div[2]/div/div[3]/div/div/div[4]"
-                                               "/div[1]/table/tbody[1]/tr[2]")
-        sold_by.screenshot("..\\Screenshots\\first_item_sold_by.png")
-
-        # the "Whisper" button on the page - copies the direct whisper into the clipboard
-        whisper = driver.find_element_by_xpath("/html/body/div[2]/div/div[3]/div/div/div[4]"
-                                               "/div[1]/table/tbody[1]/tr[2]/td[2]/span/ul/li[4]/a")
-        whisper.click()
-
-        search_url = driver.current_url
+        current_url = driver.current_url
         driver.close()
 
-        list_images = ["..\\Screenshots\\first_item.png",
-                       "..\\Screenshots\\first_item_sold_by.png"]
-        file_name = "first_item_result_screen"
-        merged_image_path = merge_images(list_images=list_images, file_name=file_name)
-
-        await ctx.send(f"@{ctx.author} - see following information regarding your requested search:\n"
-                       f"URL: {search_url}"
-                       f"\nWhisper: \n{paste()}",  # using pyperclip's .paste() method to paste from the clipboard
-                       file=discord.File(merged_image_path))
+        # might do a separate function for sending dms with images
+        user = ctx.author
+        guild = ctx.guild
+        channel = ctx.channel
+        category = channel.category
+        command = ctx.command
+        await ctx.send("Check your DM for the results!")
+        await user.create_dm()
+        await user.dm_channel.send(f"This DM has been triggered by command '!{command}' "
+                                   f"from guild/server '{guild}' in channel '{channel}' (in category '{category}')."
+                                   f"\n\nHere are your requested results for '{item_of_interest}' with criteria -  "
+                                   f"Sockets: {socket_count_min}, Linked: {linked_sockets_min}, "
+                                   f"Socket Colours: {r}r {g}g {b}b {w}w for {colour_s_l} (s = sockets, l = links)"
+                                   f"- :bell: :bell: :bell:"
+                                   f"\nURL: {current_url}")
+        for count in range(0, len(saved_screenshots) + 1):
+            await user.dm_channel.send(f"\n{whispers[count]}",
+                                       file=discord.File(saved_screenshots[count]))
