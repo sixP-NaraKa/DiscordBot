@@ -329,9 +329,15 @@ class PoE(discord.ext.commands.Cog):
                 item = driver.find_element_by_id("item-container-" + str(i))
                 item.screenshot(filename=file_path)
                 saved_screenshots.append(file_path)
+                # depending on if "scam" warning appears, whisper xpath changes
                 # + 1 for the whisper since they start at 1
-                whisper = driver.find_element_by_xpath("/html/body/div[2]/div/div[3]/div/div/div[4]/div[1]/table/tbody"
-                                                       "[" + str(i + 1) + "]/tr[2]/td[2]/span/ul/li[4]/a")
+                if "Don't fall for this scam, click here for more info." in driver.page_source:
+                    whisper = driver.find_element_by_xpath(f"/html/body/div[2]/div/div[3]/div/div/div[5]/div/"
+                                                           f"table/tbody[" + str(i + 1) + "]/tr[2]/td[2]/span/ul/li[4]/a")
+                else:
+                    whisper = driver.find_element_by_xpath("/html/body/div[2]/div/div[3]/div/div/div[4]/div[1]/"
+                                                           "table/tbody[" + str(i + 1) + "]/tr[2]/td[2]/span/ul/li[4]/a")
+                    
                 whisper.click()
                 whispers.append(paste())
             # sleep(1)
