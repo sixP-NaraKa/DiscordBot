@@ -321,6 +321,7 @@ class PoE(discord.ext.commands.Cog):
         # if results came up, extract the first item via screenshot(s) and present them to the user
 
         # iterate over the first table containing UP TO the first 6 results
+        # if you want more results returned, simply increase the UPT TO number!
         saved_screenshots = []
         whispers = []
         for i in range(0, 6, 1):
@@ -362,6 +363,6 @@ class PoE(discord.ext.commands.Cog):
                                    f"Socket Colours: {r}r {g}g {b}b {w}w for {colour_s_l} (s = sockets, l = links)"
                                    f"- :bell: :bell: :bell:"
                                    f"\nURL: {current_url}")
-        for count in range(0, len(saved_screenshots) + 1):
+        for count, screenshot in enumerate(saved_screenshots):
             await user.dm_channel.send(f"\n{whispers[count]}",
-                                       file=discord.File(saved_screenshots[count]))
+                                       file=discord.File(screenshot))
