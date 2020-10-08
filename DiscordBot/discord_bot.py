@@ -34,12 +34,18 @@ from API.DiscordBot.testing_commands import Testing
 # pass_context=True: with the .commands maybe not even needed.
 # Seems to work fine. :/ Hmm, maybe it doesn't do what I think it does
 
+# start the logger at the start of the application - basic configuration (logs whatever can be logged, essentially)
+# logging.basicConfig(filename="logs\\bot_logs.log", filemode="a", level=logging.DEBUG)
+logger = logging.getLogger("discord")
+logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler(filename="logs\\bot_logs.log", encoding="UTF-8", mode="w")  # "w" - resets every run
+handler.setFormatter(logging.Formatter("%(asctime)s: %(levelname)s: %(name)s: %(message)s"))
+logger.addHandler(handler)
+
 load_dotenv("..\\DiscordBot\\.env.txt")
 TOKEN = os.getenv("DISCORD_TOKEN")
 
 bot = commands.Bot(command_prefix="!")
-
-logging.basicConfig(level=logging.INFO)
 
 # adding the command categories as well as their commands
 bot.add_cog(Server())
