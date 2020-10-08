@@ -87,7 +87,7 @@ class Server(discord.ext.commands.Cog):
                       ignore_extra=False)
     @commands.guild_only()
     @commands.has_role("admins")
-    async def create_channel(self, ctx, channel_name, text_or_voice, category_name=""):
+    async def create_channel(self, ctx, channel_name: str, text_or_voice: str, category_name=""):
         """
         Command:\n
         Creates a text or voice based channel in a, if desired, given category.
@@ -110,6 +110,12 @@ class Server(discord.ext.commands.Cog):
         :return: creates the channel and notifies the user
         """
 
+        # doing a check here if the text_or_voice param is either "t" or "v"
+        if text_or_voice.lower() not in ["t", "v"]:
+            return await ctx.send("Specify the channel to be created as either 't' (or 'T') for a text-based channel, "
+                                  "or 'v' (or 'V') for a voice-based channel."
+                                  "\nSee the !help <command> for example usages.")
+        
         guild = ctx.guild  # current guild
         existing_channel = discord.utils.get(guild.channels, name=channel_name)
         # True or False, checked ob channel gibt
@@ -123,7 +129,7 @@ class Server(discord.ext.commands.Cog):
 
         # if above category does exist, continue with the creation of the channel
         if not existing_channel:  # wert is da, also nicht null --> nicht empty also True, empty ist gleich False (etc.)
-            await ctx.send(f"Trying to create new channel: {channel_name}")
+            await ctx.send(f"Trying to create new channel: {channel_name} as {text_or_voice} under {category_name}")
             if text_or_voice == "t":
                 if category_name != "":
                     await guild.create_text_channel(channel_name, category=existing_category)
