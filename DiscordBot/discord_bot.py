@@ -52,7 +52,6 @@ bot.add_cog(Server())
 bot.add_cog(Misc())
 bot.add_cog(AoE())
 bot.add_cog(PoE())
-bot.add_cog(Testing())
 
 
 """ BOT EVENTS """
