@@ -118,7 +118,6 @@ class Server(discord.ext.commands.Cog):
         
         guild = ctx.guild  # current guild
         existing_channel = discord.utils.get(guild.channels, name=channel_name)
-        # True or False, checked ob channel gibt
 
         # if the category name is not an empty string, look for that category
         if category_name != "":
@@ -128,7 +127,7 @@ class Server(discord.ext.commands.Cog):
                 return await ctx.send(f"Category {category_name} does not exist!")
 
         # if above category does exist, continue with the creation of the channel
-        if not existing_channel:  # wert is da, also nicht null --> nicht empty also True, empty ist gleich False (etc.)
+        if not existing_channel:
             await ctx.send(f"Trying to create new channel: {channel_name} as {text_or_voice} under {category_name}")
             if text_or_voice.lower() == "t":
                 if category_name != "":
