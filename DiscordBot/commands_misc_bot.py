@@ -78,3 +78,24 @@ class Misc(commands.Cog):
         """
         
         return await ctx.send(file=discord.File("..\\Screenshots\\external-content.duckduckgo.com.gif"))
+
+    
+    @commands.command(name="logs")
+    @commands.guild_only()
+    @commands.has_role("owner")
+    async def get_log(self, ctx):
+        """
+        Command:\n
+        Fetches the log fom this session and send it via a DM to the user who called this command.
+        Only user with the "owner" role can use this command.
+
+        :param ctx: the Context data (gets it from Discord)
+
+        :return: the log file
+        """
+
+        return await send_image_dm(ctx.author, ctx.guild, ctx.channel.category, ctx.channel, ctx.command,
+                                   text="Here is the requested log file.",
+                                   info="",
+                                   file=discord.File("logs\\bot_logs.log"))
+    
