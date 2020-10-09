@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from API.DiscordBot.standard_functions_bot import get_request_response
 
 
-class AoE(discord.ext.commands.Cog):
+class AoE(commands.Cog):
     """ Age of Empires 2 specific commands """
 
     @commands.command(name="online",
