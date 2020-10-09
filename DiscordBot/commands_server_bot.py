@@ -8,7 +8,6 @@ Testing the Discord Bot functions and stuff.
 import discord
 from discord.ext import commands
 
-# where the other file(s) are located at to import from
 from API.DiscordBot.standard_functions_bot import send_dm
 
 
@@ -38,9 +37,9 @@ class Server(commands.Cog):
         existing_category = discord.utils.get(guild.categories, name=category_name)
         if existing_category is None:
             category = await guild.create_category_channel(category_name)
-            return await ctx.send(f"Category {category} created!")
+            return await ctx.send(f"Category '{category}' created!")
         else:
-            return ctx.send(f"Category {category_name} already exists!")
+            return ctx.send(f"Category '{category_name}' already exists!")
 
     @commands.command(name="delete-category",
                       help="Deletes a given category. You can specify with <delete_channels> True to also"
@@ -50,30 +49,37 @@ class Server(commands.Cog):
                       ignore_extra=True)
     @commands.guild_only()
     @commands.has_role("admins")
-    async def delete_category(self, ctx, category_name, delete_channels=False):
+    async def delete_category(self, ctx, category_name: str, delete_channels: bool = False):
         """
         Command:\n
         Deletes a given category.
-        ToDo: Optionally, all its channels as well.
+        Optionally, with delete_channels = True, all its channels as well. Defaults to False.
 
         :param ctx: the Context data (gets it from Discord)
         :param category_name: the name of the category which the user wants to delete
-        :param delete_channels: delete the channels as well - defaults to False if left empty
+        :param delete_channels: delete the channels as well - defaults to False if not set to True
 
         :return: notifies the user of the outcome - if deleted or not
         """
 
-        guild = ctx.guild
-        existing_category = discord.utils.get(guild.categories, name=category_name)
-        if existing_category is not None:
-            # print(existing_category.channels)
-            await ctx.send(f"Deleting category {category_name}."
-                           f" Its channels (if applicable) have been moved to no category."
-                           f" If you wish to delete them as well, use the !help <delete-channel> command.")
+        response = ""
+        existing_category = discord.utils.get(ctx.guild.categories, name=category_name)
+        if existing_category is not None:  # if the category exists
+            if delete_channels is True and existing_category.channels is not None:  # ... and if channels are not empty
+                names = []
+                for channel in existing_category.channels:
+                    names.append(channel.name)
+                    await channel.delete()
+                response += "Deleted channels: \n" + "\n".join(names) + "\n"
+            # after the channels have been deleted (or not), continue with the deletion of the category itself
+            else:
+                response += f"Category '{existing_category}' has no channels to delete. Skipping...\n"
+
             await existing_category.delete()
-            return await ctx.send(f"Category {category_name} deleted.")
+            return await ctx.send(f"{response}"
+                                  f"Category '{existing_category}' deleted.")
         else:
-            return await ctx.send(f"Cannot delete category {category_name}: does not exist. ")
+            return await ctx.send(f"Cannot delete category '{category_name}': does not exist. ")
 
     @commands.command(name="create-channel",
                       help="Creates a channel (text or audio) - use simply t for Text, v for Voice."
@@ -90,11 +96,12 @@ class Server(commands.Cog):
                       ignore_extra=False)
     @commands.guild_only()
     @commands.has_role("admins")
-    async def create_channel(self, ctx, channel_name: str, text_or_voice: str, category_name=""):
+    async def create_channel(self, ctx, channel_name: str, text_or_voice: str, category_name: str = ""):
         """
         Command:\n
         Creates a text or voice based channel in a, if desired, given category.
-        Returns an error when the channel already exists.
+        Returns an error when the channel already exists in the given category,
+        otherwise it will create it under no category.
         \nOnly Users with the Admin role can use this command!
         \n
 
@@ -113,41 +120,31 @@ class Server(commands.Cog):
         :return: creates the channel and notifies the user
         """
 
-        # doing a check here if the text_or_voice param is either "t" or "v"
-        if text_or_voice.lower() not in ["t", "v"]:
+        existing_channel = discord.utils.get(ctx.guild.channels, name=channel_name)
+        existing_category = discord.utils.get(ctx.guild.categories, name=category_name)
+        if existing_channel:  # if channel already exists, return
+            return await ctx.send(f"Channel '{channel_name}' already exists.")
+        if category_name != "" and not existing_category:  # if a category was specified and it does not exist
+            return await ctx.send(f"Category '{category_name}' does not exist.")
+
+        # if the checks so far have been successful, see if text or voice channel should be created
+        text_or_voice = text_or_voice.lower()
+        if text_or_voice == "t" and existing_category:  # if "t" and specified category exists
+            await ctx.guild.create_text_channel(channel_name, category=existing_category)
+            return await ctx.send(f"Text channel '{channel_name}' created under category '{category_name}'.")
+        elif text_or_voice == "t" and category_name == "":  # if "t" only and category was unspecified
+            await ctx.guild.create_text_channel(channel_name)
+            return await ctx.send(f"Text channel '{channel_name}' created.")
+        if text_or_voice == "v" and existing_category:  # if "v" and specified category exists
+            await ctx.guild.create_voice_channel(channel_name, category=existing_category)
+            return await ctx.send(f"Voice channel '{channel_name}' created under category '{category_name}'.")
+        elif text_or_voice == "v" and category_name == "":  # if "v" only and category was unspecified
+            await ctx.guild.create_voice_channel(channel_name)
+            return await ctx.send(f"Voice channel '{channel_name}' created.")
+        else:  # if none of the above (neither "t" or "v" essentially)
             return await ctx.send("Specify the channel to be created as either 't' (or 'T') for a text-based channel, "
                                   "or 'v' (or 'V') for a voice-based channel."
-                                  "\nSee the !help <command> for example usages.")
-        
-        guild = ctx.guild  # current guild
-        existing_channel = discord.utils.get(guild.channels, name=channel_name)
-
-        # if the category name is not an empty string, look for that category
-        if category_name != "":
-            existing_category = discord.utils.get(guild.categories, name=category_name)
-            # if the category does not exist, notify the user and discontinue
-            if existing_category is None:
-                return await ctx.send(f"Category {category_name} does not exist!")
-
-        # if above category does exist, continue with the creation of the channel
-        if not existing_channel:
-            await ctx.send(f"Trying to create new channel: {channel_name} as {text_or_voice} under {category_name}")
-            if text_or_voice.lower() == "t":
-                if category_name != "":
-                    await guild.create_text_channel(channel_name, category=existing_category)
-                    return await ctx.send(f"Text channel {channel_name} created under category {category_name}.")
-                else:
-                    await guild.create_text_channel(channel_name)
-                    return await ctx.send(f"Text channel {channel_name} created.")
-            elif text_or_voice.lower() == "v":
-                if category_name != "":
-                    await guild.create_voice_channel(channel_name, category=existing_category)
-                    return await ctx.send(f"Voice channel {channel_name} created under category {category_name}.")
-                else:
-                    await guild.create_voice_channel(channel_name)
-                    return await ctx.send(f"Voice channel {channel_name} created.")
-        else:
-            return await ctx.send(f"{channel_name} channel already exists.")
+                                  "\nSee '!help create-channel' for example usages.")
 
     @commands.command(name="delete-channel",
                       help="Deletes a given channel. Note: Case sensitive."
@@ -178,14 +175,13 @@ class Server(commands.Cog):
 
         guild = ctx.guild
         existing_channel = discord.utils.get(guild.channels, name=channel_name)
-        # print(type(existing_channel))
         if existing_channel:
             # existing_channel_id = existing_channel.id
-            await ctx.send(f"Deleting channel: {channel_name}")
-            await existing_channel.delete()  # you need to call ON the channel itself the delete() method
-            return await ctx.send(f"Channel {channel_name} deleted.")
+            await ctx.send(f"Deleting channel: '{channel_name}'")
+            await existing_channel.delete()
+            return await ctx.send(f"Channel '{channel_name}' deleted.")
         else:
-            return await ctx.send(f"Cannot delete channel {channel_name}: does not exist.")
+            return await ctx.send(f"Cannot delete channel '{channel_name}': does not exist.")
 
     @commands.command(name="members",
                       help="Outputs a list of all the current members of this guild."
@@ -255,6 +251,6 @@ class Server(commands.Cog):
         category = ctx.channel.category
         channel = ctx.channel
         triggered_command = ctx.command
-        await send_dm(user=user, guild=guild, category=category, channel=channel, command=triggered_command, 
+        await send_dm(user=user, guild=guild, category=category, channel=channel, command=triggered_command,
                       text=members, info=general_info)
         return await ctx.send(f"Sent you (@{user}) a DM containing more detailed information. :smiley:")
