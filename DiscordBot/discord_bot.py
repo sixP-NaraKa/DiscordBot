@@ -28,7 +28,6 @@ from API.DiscordBot.commands_server_bot import Server
 from API.DiscordBot.commands_misc_bot import Misc
 from API.DiscordBot.commands_aoe_bot import AoE
 from API.DiscordBot.commands_poe_bot import PoE
-from API.DiscordBot.testing_commands import Testing
 
 
 # pass_context=True: with the .commands maybe not even needed.
