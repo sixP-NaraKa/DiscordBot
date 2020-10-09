@@ -130,14 +130,14 @@ class Server(discord.ext.commands.Cog):
         # if above category does exist, continue with the creation of the channel
         if not existing_channel:  # wert is da, also nicht null --> nicht empty also True, empty ist gleich False (etc.)
             await ctx.send(f"Trying to create new channel: {channel_name} as {text_or_voice} under {category_name}")
-            if text_or_voice == "t":
+            if text_or_voice.lower() == "t":
                 if category_name != "":
                     await guild.create_text_channel(channel_name, category=existing_category)
                     return await ctx.send(f"Text channel {channel_name} created under category {category_name}.")
                 else:
                     await guild.create_text_channel(channel_name)
                     return await ctx.send(f"Text channel {channel_name} created.")
-            elif text_or_voice == "v":
+            elif text_or_voice.lower() == "v":
                 if category_name != "":
                     await guild.create_voice_channel(channel_name, category=existing_category)
                     return await ctx.send(f"Voice channel {channel_name} created under category {category_name}.")
