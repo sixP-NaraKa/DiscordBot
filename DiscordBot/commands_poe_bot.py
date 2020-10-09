@@ -137,7 +137,7 @@ def get_price(want_currency, have_currency="Chaos Orb"):
                                                                                        currency_url)
 
 
-class PoE(discord.ext.commands.Cog):
+class PoE(commands.Cog):
     """ PoE (Path of Exile) specific commands """
 
     @commands.command(name="price",
