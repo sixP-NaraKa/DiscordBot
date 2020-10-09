@@ -84,7 +84,11 @@ class Server(commands.Cog):
     @commands.command(name="create-channel",
                       help="Creates a channel (text or audio) - use simply t for Text, v for Voice."
                            "\nSince Discord doesn't allow capital names of TextChannels, "
-                           "there is not much to be done about it... VoiceChannels work fine though lul."
+                           "there is not much to be done about it... VoiceChannels work fine though."
+                           "\nStill, no duplicate names (doesn't matter if upper/lower-case, etc.) allowed for now. :)"
+                           "The same names are only allowed for each one voice and text based channel, but not more."
+                           "For example: 'Test' voice and 'test' text can coexist together. "
+                           "but not a second one of either."
                            "\nIf you want the channel to be created under a specific category, "
                            "simply add the name of the category to the command. Note: case sensitive!"
                            "\nOnly Users with the Admin role can use this command."
@@ -120,7 +124,11 @@ class Server(commands.Cog):
         :return: creates the channel and notifies the user
         """
 
-        existing_channel = discord.utils.get(ctx.guild.channels, name=channel_name)
+        # only text based channels are always put to lower-case, no matter what
+        # in order to, at this moment, make it easier to handle the deletion of individual channels,
+        # use name=channel_name.lower()
+        # not a good way to do it, but at least something for now, will change it in the future - maybe ;)
+        existing_channel = discord.utils.get(ctx.guild.channels, name=channel_name.lower())
         existing_category = discord.utils.get(ctx.guild.categories, name=category_name)
         if existing_channel:  # if channel already exists, return
             return await ctx.send(f"Channel '{channel_name}' already exists.")
