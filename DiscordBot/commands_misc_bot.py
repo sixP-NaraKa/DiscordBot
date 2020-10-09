@@ -11,7 +11,7 @@ import discord
 from discord.ext import commands
 
 
-class Misc(discord.ext.commands.Cog):
+class Misc(commands.Cog):
     """ Miscellaneous commands """
 
     @commands.command(pass_context=True,
@@ -76,5 +76,5 @@ class Misc(discord.ext.commands.Cog):
 
         :return: the gif
         """
-        # user = ctx.author
+        
         return await ctx.send(file=discord.File("..\\Screenshots\\external-content.duckduckgo.com.gif"))
