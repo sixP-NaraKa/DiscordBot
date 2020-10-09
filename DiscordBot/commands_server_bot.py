@@ -21,6 +21,7 @@ class Server(commands.Cog):
                            "\nSpaces, upper/lower case, as well as - & _ are allowed by Discord."
                            """\nIf you want to use spaces in the name, wrap the category name inside ' ' or " ".""",
                       ignore_extra=True)
+    @commands.guild_only()
     @commands.has_role("admins")
     async def create_category(self, ctx, category_name):
         """
@@ -47,6 +48,8 @@ class Server(commands.Cog):
                            "\nOnly Users with the Admin role can use this command."
                            "\nNote: case sensitive!",
                       ignore_extra=True)
+    @commands.guild_only()
+    @commands.has_role("admins")
     async def delete_category(self, ctx, category_name, delete_channels=False):
         """
         Command:\n
