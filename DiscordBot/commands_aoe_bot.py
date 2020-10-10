@@ -10,7 +10,7 @@ from discord.ext import commands
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from API.DiscordBot.standard_functions_bot import get_request_response
+from .standard_functions_bot import get_request_response
 
 
 class AoE(commands.Cog):
