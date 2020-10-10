@@ -13,7 +13,7 @@ from discord.ext import commands
 from selenium.webdriver.common.keys import Keys
 from pyperclip import paste
 
-from API.DiscordBot.standard_functions_bot import get_parser, initialize_driver
+from .standard_functions_bot import get_parser, initialize_driver
 
 
 # two dictionaries of the PoE currency items (in poe.trade)
