@@ -1,8 +1,4 @@
-""" HERE START THE GENERAL FUNCTIONS
-
-Copyright © 2020 https://github.com/sixP-NaraKa - and all that shit.
-Testing the Discord Bot functions and stuff.
-"""
+""" HERE START THE GENERAL FUNCTIONS """
 
 
 import requests
