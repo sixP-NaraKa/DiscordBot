@@ -10,6 +10,8 @@ from random import randint
 import discord
 from discord.ext import commands
 
+from .standard_functions_bot import send_image_dm
+
 
 class Misc(commands.Cog):
     """ Miscellaneous commands """
