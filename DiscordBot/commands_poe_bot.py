@@ -1,8 +1,4 @@
-""" PoE (Path of Exile) SPECIFIC COMMANDS
-
-Copyright © 2020 https://github.com/sixP-NaraKa - and all that shit.
-Testing the Discord Bot functions and stuff.
-"""
+""" PoE (Path of Exile) SPECIFIC COMMANDS """
 
 
 import re
