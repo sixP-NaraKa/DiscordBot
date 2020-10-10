@@ -1,8 +1,4 @@
-""" GUILD/SERVER RELATED COMMANDS
-
-Copyright © 2020 https://github.com/sixP-NaraKa - and all that shit.
-Testing the Discord Bot functions and stuff.
-"""
+""" GUILD/SERVER RELATED COMMANDS """
 
 
 import discord
