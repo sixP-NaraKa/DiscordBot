@@ -1,9 +1,6 @@
 # discord_bot.py
 
 """
-Copyright © 2020 https://github.com/sixP-NaraKa - and all that shit.
-Testing the Discord Bot functions and stuff.
-
 Main class/file.
 The corresponding commands have been moved to different files and their classes.
 Easier time to manage the code.
