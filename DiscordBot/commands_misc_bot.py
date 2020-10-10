@@ -1,8 +1,4 @@
-""" MISC COMMANDS
-
-Copyright © 2020 https://github.com/sixP-NaraKa - and all that shit.
-Testing the Discord Bot functions and stuff.
-"""
+""" MISC COMMANDS """
 
 
 from random import randint
