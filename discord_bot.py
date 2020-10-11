@@ -25,7 +25,6 @@ from cogs.server import Server
 from cogs.misc import Misc
 from cogs.aoe import AoE
 from cogs.poe import PoE
-from cogs.testing import Testing
 
 
 """ BOT CLASS WITH EVENTS """
@@ -56,7 +55,6 @@ class CommandBot(commands.Bot):  # inherit from discord.ext.commands.Bot
         self.add_cog(Misc())
         self.add_cog(AoE())
         self.add_cog(PoE())
-        self.add_cog(Testing())
         cogs = ", ".join(self.cogs.keys())
         logger.info(f"All Cogs '{cogs}' successfully loaded...")
 
