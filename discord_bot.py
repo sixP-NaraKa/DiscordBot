@@ -28,16 +28,6 @@ from cogs.poe import PoE
 from cogs.testing import Testing
 
 
-# logger = logging.getLogger("discord")
-# logger.setLevel(logging.DEBUG)
-# handler = logging.FileHandler(filename="logs\\bot_logs.log", encoding="UTF-8", mode="w")  # "w" - resets every run
-# handler.setFormatter(logging.Formatter("%(asctime)s: %(levelname)-8s: %(name)-20s: %(message)s"))
-# logger.addHandler(handler)
-
-# load_dotenv(".env.env")
-# TOKEN = os.getenv("DISCORD_TOKEN")
-
-
 """ BOT CLASS WITH EVENTS """
 
 
@@ -115,7 +105,6 @@ class CommandBot(commands.Bot):  # inherit from discord.ext.commands.Bot
         """
 
         logger.info(f"A new member joined the guild/server: {member.name}, with ID {member.id}")
-        # sends a new user to the guild/server a DM (direct message)
         await member.create_dm()
         await member.dm_channel.send(f"Oy {member.name}! ;)")
 
