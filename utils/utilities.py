@@ -5,7 +5,6 @@ import requests
 import sys
 
 import discord
-# import asyncio.base_events as ass
 import bs4
 from selenium import webdriver
 import numpy as np
@@ -20,12 +19,12 @@ ublock_addon_ff = "FULL_FILE_PATH_HERE\\DiscordBot\\resources\\ublockXPI\\uBlock
 
 async def stop_bot(ctx):
     """
-    Just kill the whole process. Easier that way. LOL
+    Just kill the whole process - for now.
+    
     :param ctx: the Context data (gets it from the calling function)
     """
 
     bot = ctx.bot
-    # bot.ass.BaseEventLoop.stop()
     await bot.logout()
     await bot.close()
     sys.exit(0)
