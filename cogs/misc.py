@@ -76,7 +76,7 @@ class Misc(commands.Cog):
         :return: the gif
         """
 
-        return await ctx.send(file=discord.File("..\\resources\\images\\ripit.gif"))
+        return await ctx.send(file=discord.File("..\\DiscordBot\\resources\\images\\ripit.gif"))
 
     @commands.command(name="logs")
     @commands.guild_only()
