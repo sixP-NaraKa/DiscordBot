@@ -344,17 +344,13 @@ class PoE(commands.Cog):
 
         current_url = driver.current_url
         driver.close()
-
-        # might do a separate function for sending dms with images
+        
         user = ctx.author
-        guild = ctx.guild
-        channel = ctx.channel
-        category = channel.category
-        command = ctx.command
         await ctx.send("Check your DM for the results!")
         await user.create_dm()
-        await user.dm_channel.send(f"This DM has been triggered by command '!{command}' "
-                                   f"from guild/server '{guild}' in channel '{channel}' (in category '{category}')."
+        await user.dm_channel.send(f"This DM has been triggered by command '!{ctx.command}' "
+                                   f"from guild/server '{ctx.guild}' in channel '{ctx.channel}' "
+                                   f"(in category '{ctx.channel.category}')."
                                    f"\n\nHere are your requested results for '{item_of_interest}' with criteria -  "
                                    f"Sockets: {socket_count_min}, Linked: {linked_sockets_min}, "
                                    f"Socket Colours: {r}r {g}g {b}b {w}w for {colour_s_l} (s = sockets, l = links)"
