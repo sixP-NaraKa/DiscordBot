@@ -15,7 +15,7 @@ from PIL import Image
 
 # gecko_path = "..\\resources\\geckodriver\\geckodriver-v0.27.0-win32\\geckodriver.exe"
 gecko_path = "..\\DiscordBot\\resources\\geckodriver-v0.27.0-win32\\geckodriver.exe"
-ublock_addon_ff = "C:\\Users\\IEUser\\IdeaProjects\\DiscordBot\\resources\\ublockXPI\\uBlock0_1.30.1b3.firefox.signed.xpi"
+ublock_addon_ff = "FULL_FILE_PATH_HERE\\DiscordBot\\resources\\ublockXPI\\uBlock0_1.30.1b3.firefox.signed.xpi"
 
 
 async def stop_bot(ctx):
