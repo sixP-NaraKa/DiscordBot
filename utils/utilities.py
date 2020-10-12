@@ -17,19 +17,6 @@ gecko_path = "..\\DiscordBot\\resources\\geckodriver-v0.27.0-win32\\geckodriver.
 ublock_addon_ff = "FULL_FILE_PATH_HERE\\DiscordBot\\resources\\ublockXPI\\uBlock0_1.30.1b3.firefox.signed.xpi"
 
 
-async def stop_bot(ctx):
-    """
-    Just kill the whole process - for now.
-    
-    :param ctx: the Context data (gets it from the calling function)
-    """
-
-    bot = ctx.bot
-    await bot.logout()
-    await bot.close()
-    sys.exit(0)
-
-
 async def send_dm(user, guild, category, channel, command, text, info=""):
     """
     A function to send a user whatever text this function has received.
