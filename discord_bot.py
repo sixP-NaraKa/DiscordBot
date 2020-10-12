@@ -51,10 +51,12 @@ class CommandBot(commands.Bot):  # inherit from discord.ext.commands.Bot
         """
 
         # adding the Cogs to the Bot
-        self.add_cog(Server())
-        self.add_cog(Misc())
-        self.add_cog(AoE())
-        self.add_cog(PoE())
+        # "self" --> CommandBot (inherits from discord.ext.commands.Bot)
+        # "bot" instead of "self" also works fine, in this case, because "bot = CommandBot()" when started
+        self.add_cog(Server(bot=self))
+        self.add_cog(Misc(bot=self))
+        self.add_cog(AoE(bot=self))
+        self.add_cog(PoE(bot=self))
         cogs = ", ".join(self.cogs.keys())
         logger.info(f"All Cogs '{cogs}' successfully loaded...")
 
