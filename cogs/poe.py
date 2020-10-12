@@ -136,6 +136,9 @@ def get_price(want_currency, have_currency="Chaos Orb"):
 
 class PoE(commands.Cog):
     """ PoE (Path of Exile) specific commands """
+    
+    def __init__(self, bot):  # bot is from --> discord_bot.CommandBot
+        self.bot = bot
 
     @commands.command(name="price",
                       help="Returns back the current rough price of a given currency (in Chaos by default)."
