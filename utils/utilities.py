@@ -2,7 +2,6 @@
 
 
 import requests
-import sys
 
 import discord
 import bs4
