@@ -5,6 +5,7 @@ from random import randint
 
 import discord
 from discord.ext import commands
+import logging
 
 import utils.utilities as ut
 # from utils.utilities import send_file_dm
@@ -13,8 +14,10 @@ import utils.utilities as ut
 class Misc(commands.Cog):
     """ Miscellaneous commands """
     
-    def __init__(self, bot):  # bot is from --> discord_bot.CommandBot
+    def __init__(self, bot, logger):  # bot & logger are from --> discord_bot.CommandBot
         self.bot = bot
+        logger = logging.getLogger("discord.Misc")
+        logger.info("Misc() started...")
 
     @commands.command(pass_context=True,
                       name="madeby",
