@@ -42,6 +42,9 @@ async def send_dm(user, guild, category, channel, command, text, info=""):
 
 async def send_file_dm(user, guild, category, channel, command, text, info="", file: discord.File = ""):
     """
+    A function to send a user whatever text as well as a file this function has received.
+    Very similar to the :send_dm: function, but it accepts a file.
+    Both can be merged together, actually. But for now will keep them separated.
 
     :param user: the message receiving user
     :param guild: the guild in which the Bot command call has been made from
