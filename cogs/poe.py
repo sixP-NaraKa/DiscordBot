@@ -6,6 +6,7 @@ from time import sleep
 
 import discord
 from discord.ext import commands
+import logging
 from selenium.webdriver.common.keys import Keys
 from pyperclip import paste
 
@@ -137,8 +138,10 @@ def get_price(want_currency, have_currency="Chaos Orb"):
 class PoE(commands.Cog):
     """ PoE (Path of Exile) specific commands """
     
-    def __init__(self, bot):  # bot is from --> discord_bot.CommandBot
+    def __init__(self, bot):  # bot & logger are from --> discord_bot.CommandBot
         self.bot = bot
+        logger = logging.getLogger("discord.PoE")
+        logger.info("PoE() started...")
 
     @commands.command(name="price",
                       help="Returns back the current rough price of a given currency (in Chaos by default)."
