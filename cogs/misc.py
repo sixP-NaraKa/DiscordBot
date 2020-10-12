@@ -12,6 +12,9 @@ import utils.utilities as ut
 
 class Misc(commands.Cog):
     """ Miscellaneous commands """
+    
+    def __init__(self, bot):  # bot is from --> discord_bot.CommandBot
+        self.bot = bot
 
     @commands.command(pass_context=True,
                       name="madeby",
