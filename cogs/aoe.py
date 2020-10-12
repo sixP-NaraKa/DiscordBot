@@ -3,6 +3,7 @@
 
 import discord
 from discord.ext import commands
+import logging
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -13,8 +14,10 @@ import utils.utilities as ut
 class AoE(commands.Cog):
     """ Age of Empires 2 specific commands """
     
-    def __init__(self, bot):  # bot is from --> discord_bot.CommandBot
+    def __init__(self, bot, logger):  # bot & logger are from --> discord_bot.CommandBot
         self.bot = bot
+        logger = logging.getLogger("discord.AoE")
+        logger.info("AoE() started...")
 
     @commands.command(name="online",
                       help="Fetches the current amount of players in-game in AoE2:DE."
