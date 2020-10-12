@@ -14,10 +14,10 @@ import utils.utilities as ut
 class Misc(commands.Cog):
     """ Miscellaneous commands """
     
-    def __init__(self, bot, logger):  # bot & logger are from --> discord_bot.CommandBot
+    def __init__(self, bot):  # bot is from --> discord_bot.CommandBot
         self.bot = bot
-        logger = logging.getLogger("discord.Misc")
-        logger.info("Misc() started...")
+        self.logger = logging.getLogger("discord.Misc")
+        self.logger.info("Misc() started...")
 
     @commands.command(pass_context=True,
                       name="madeby",
