@@ -10,6 +10,9 @@ import utils.utilities as ut
 
 class Server(commands.Cog):
     """ Channel and Guild/Server related commands """
+    
+    def __init__(self, bot):  # bot is from --> discord_bot.CommandBot
+        self.bot = bot
 
     @commands.command(name="create-category",
                       help="Create a given category."
