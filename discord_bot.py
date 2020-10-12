@@ -55,11 +55,10 @@ class CommandBot(commands.Bot):  # inherit from discord.ext.commands.Bot
         # "self" --> CommandBot (inherits from discord.ext.commands.Bot)
         # "bot" instead of "self" also works fine, in this case, because "bot = CommandBot()" when started
         # additionally, giving each Cog the initialized logger from here, so it is nice and "centralized" ;)
-        self.add_cog(Server(bot=self, logger=logger))
-        self.add_cog(Misc(bot=self, logger=logger))
-        self.add_cog(AoE(bot=self, logger=logger))
-        self.add_cog(PoE(bot=self, logger=logger))
-        self.add_cog(Testing(bot=bot, logger=logger))
+        self.add_cog(Server(bot=self))
+        self.add_cog(Misc(bot=self))
+        self.add_cog(AoE(bot=self))
+        self.add_cog(PoE(bot=self))
         cogs = ", ".join(self.cogs.keys())
         logger.info(f"All Cogs '{cogs}' successfully loaded...")
 
