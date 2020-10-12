@@ -31,6 +31,7 @@ from cogs.poe import PoE
 
 
 class CommandBot(commands.Bot):  # inherit from discord.ext.commands.Bot
+    """ The CommandBot - including events """
 
     def __init__(self):
         super().__init__(command_prefix="!")
