@@ -12,6 +12,9 @@ import utils.utilities as ut
 
 class AoE(commands.Cog):
     """ Age of Empires 2 specific commands """
+    
+    def __init__(self, bot):  # bot is from --> discord_bot.CommandBot
+        self.bot = bot
 
     @commands.command(name="online",
                       help="Fetches the current amount of players in-game in AoE2:DE."
