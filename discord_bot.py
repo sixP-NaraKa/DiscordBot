@@ -1,5 +1,3 @@
-# discord_bot.py
-
 """ Main class/file.
 
 The corresponding commands have been moved to different files and their classes.
@@ -40,10 +38,6 @@ class CommandBot(commands.Bot):  # inherit from discord.ext.commands.Bot
         self.on_member_join = self.event(self.on_member_join)
         self.on_command_error = self.event(self.on_command_error)
 
-    @staticmethod
-    def log(level: int, message):
-        logger.log(level=level, msg=message)
-
     def startup(self, bot_token):
         """
         Adds the Cogs to the Bot and starts said Bot.
@@ -54,7 +48,6 @@ class CommandBot(commands.Bot):  # inherit from discord.ext.commands.Bot
         # adding the Cogs to the Bot
         # "self" --> CommandBot (inherits from discord.ext.commands.Bot)
         # "bot" instead of "self" also works fine, in this case, because "bot = CommandBot()" when started
-        # additionally, giving each Cog the initialized logger from here, so it is nice and "centralized" ;)
         self.add_cog(Server(bot=self))
         self.add_cog(Misc(bot=self))
         self.add_cog(AoE(bot=self))
@@ -135,27 +128,33 @@ class CommandBot(commands.Bot):  # inherit from discord.ext.commands.Bot
         #     return await ctx.send("You do not have the correct role/permissions for this command.")
         if isinstance(error, commands.errors.MissingRole) or isinstance(error, commands.errors.MissingPermissions):
             logger.error(f"User {ctx.author}, with ID {ctx.author.id} is missing the needed roles "
-                         f"to perform command '{ctx.message.content}'...")
+                         f"to perform command '{ctx.message.content}': {error}...")
             return await ctx.send("You do not have the correct role/permissions for this command.\n"
                                   "Contact your guild/server Admins if you think this is incorrect.")
         if isinstance(error, commands.errors.CommandNotFound):
             logger.error(f"User {ctx.author}, with ID {ctx.author.id} tried to use a command '{ctx.message.content}'"
-                         f", which does not exist..."
+                         f", which does not exist: {error}..."
                          f"See below 'WebSocket Event' for full detail.")
             return await ctx.send("This command does not exist. Type !help to see all available commands.")
         if isinstance(error, commands.errors.MissingRequiredArgument):
+            logger.error(f"User {ctx.author}, with ID {ctx.author.id} tried to use a command '{ctx.message.content}'"
+                         f", but did not supply the required argument(s): {error}...")
             return await ctx.send("Error: One or more required arguments have not been passed through."
                                   "\nSee !help <command> for more information and example usages.")
         if isinstance(error, commands.errors.BadArgument):
+            logger.error(f"User {ctx.author}, with ID {ctx.author.id} tried to use a command '{ctx.message.content}'"
+                         f", with one or more bad arguments: {error}...")
             return await ctx.send("Error: One or more arguments could not be converted to the required type."
                                   "\nSee !help <command> for more information and example usages.")
         if isinstance(error, commands.errors.TooManyArguments):
+            logger.error(f"User {ctx.author}, with ID {ctx.author.id} tried to use a command '{ctx.message.content}'"
+                         f", with too many arguments: {error}...")
             return await ctx.send("Error: Too many arguments have been passed to the command."
                                   "\nSee !help <command> for more information and example usages."
                                   "\n\nIf you want this notification to not appear, contact the creator of this Bot.")
         if isinstance(error, commands.errors.NoPrivateMessage):  # the commands.guild_only() tag throws this error
             logger.error(f"User {ctx.author}, with ID {ctx.author.id} tried to use a command '{ctx.message.content}'"
-                         f", which does not work in Private Messages...")
+                         f", which does not work in Private Messages: {error}...")
             return await ctx.send("Error: This command does not work in a private message.")
 
 
@@ -164,16 +163,20 @@ if __name__ == "__main__":
     logger = logging.getLogger("discord")
     logger.setLevel(logging.DEBUG)
     handler = logging.FileHandler(filename="logs\\bot_logs.log", encoding="UTF-8", mode="w")
-    handler.setFormatter(logging.Formatter("%(asctime)s: %(levelname)-8s: %(name)-20s: %(message)s"))
+    handler.setFormatter(logging.Formatter("%(asctime)s: %(levelname)-8s: %(name)-20s: "
+                                           "%(lineno)-5d %(funcName)-20s: %(message)s"))
     logger.addHandler(handler)
 
-    bot = CommandBot()
-    try:
-        load_dotenv(".env.env")
-    except FileNotFoundError:
-        logger.critical("Cannot find the '.env' file specified")
-        import sys
-        sys.exit(1)
-
+    load_dotenv(dotenv_path=".env.env")
     TOKEN = os.getenv("DISCORD_TOKEN")
+    if TOKEN is None:
+        logger.error("Bot Token cannot be None! .env file may be missing, 'cause dotenv doesn't error out, "
+                     "even if you put verbose=True (always returns True, no matter what)..."
+                     "Exiting...")
+        raise RuntimeError("The Bot Token cannot be of NoneType! .env file may be missing, "
+                           "'cause dotenv doesn't error out, even if you put verbose=True "
+                           "(always returns True, no matter what)...")
+
+    # start the Bot
+    bot = CommandBot()
     bot.startup(TOKEN)

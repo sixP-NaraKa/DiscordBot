@@ -4,6 +4,7 @@
 import requests
 
 import discord
+import logging
 import bs4
 from selenium import webdriver
 import numpy as np
@@ -11,9 +12,11 @@ import PIL
 from PIL import Image
 
 
+logger = logging.getLogger("discord.utilities")
+
 # gecko_path = "..\\resources\\geckodriver\\geckodriver-v0.27.0-win32\\geckodriver.exe"
 gecko_path = "..\\DiscordBot\\resources\\geckodriver-v0.27.0-win32\\geckodriver.exe"
-ublock_addon_ff = "FULL_FILE_PATH_HERE\\DiscordBot\\resources\\ublockXPI\\uBlock0_1.30.1b3.firefox.signed.xpi"
+ublock_addon_ff = "INSERT_FULL_FILE_PATH_HERE\\DiscordBot\\resources\\ublockXPI\\uBlock0_1.30.1b3.firefox.signed.xpi"
 
 
 async def send_dm(user, guild, category, channel, command, text, info=""):
@@ -31,12 +34,13 @@ async def send_dm(user, guild, category, channel, command, text, info=""):
     :return: nothing needs to be returned
     """
 
-    # category = channel.category
+    logger.info(f"Sending a plain DM to {user}...")
     await user.create_dm()
     await user.dm_channel.send(f"This DM has been triggered by command '!{command}' "
                                f"from guild/server '{guild}' in channel '{channel}' (in category '{category}').\n"
                                f"\n{info}"
                                f"\n{text}")
+    logger.info(f"Sent a plain DM to {user}...")
 
 
 async def send_file_dm(user, guild, category, channel, command, text, info="", file: discord.File = ""):
@@ -57,12 +61,14 @@ async def send_file_dm(user, guild, category, channel, command, text, info="", f
     :return: nothing needs to be returned
     """
 
+    logger.info(f"Sending a DM with an image to {user}...")
     await user.create_dm()
     await user.dm_channel.send(f"This DM has been triggered by command '!{command}' "
                                f"from guild/server '{guild}' in channel '{channel}' (in category '{category}').\n"
                                f"\n{info}"
                                f"\n{text}",
                                file=file)
+    logger.info(f"Sent a DM with an image to {user}...")
 
 
 def get_request_response(link, json=True):
@@ -77,8 +83,10 @@ def get_request_response(link, json=True):
 
     response = requests.get(link)
     if json:
+        logger.info("Returning the request response as json...")
         return response.json()
     else:
+        logger.info("Returning the request response NOT as json...")
         return response
 
 
@@ -91,33 +99,42 @@ def get_parser(link):
     :return: the BeautifulSoup object
     """
 
+    logger.info("Returning the bs4 parser...")
     response = requests.get(link)
     parser = bs4.BeautifulSoup(response.text, "html.parser")
     return parser
 
 
-def initialize_driver(driver, addon_ublock=True):
+def initialize_driver(driver, addon_ublock=True, headless=True):
     """
     Initializes a given driver (selenium).
 
     :param driver: the name of the driver to initialize
     :param addon_ublock: addon to install with the initialization of the driver - defaults to True
+    :param headless: to set the webdriver to run in headless mode (no UI, etc.) - defaults to True
 
     :return: the initialized driver
     """
 
+    logger.info(f"Initializing webdriver with following additional criteria: ublock={addon_ublock}, "
+                f"headless={headless}")
     if driver == "Firefox":
-        # try:
-        #     driver = webdriver.Firefox(executable_path=gecko_path)
-        #     if addon_ublock:
-        #         driver.install_addon(ublock_addon_ff)
-        #     driver.maximize_window()
-        # except Exception as ex:
-        #     return str(ex)
-        driver = webdriver.Firefox(executable_path=gecko_path)
-        driver.install_addon(ublock_addon_ff)
+        options = webdriver.FirefoxOptions()
+        if headless:
+            options.headless = headless
+        try:
+            driver = webdriver.Firefox(executable_path=gecko_path, options=options)
+            if addon_ublock:
+                driver.install_addon(ublock_addon_ff)
+            driver.maximize_window()
+        except Exception as ex:
+            return str(ex)
+        # driver = webdriver.Firefox(executable_path=gecko_path)
+        # driver.install_addon(ublock_addon_ff)
+        logger.info("Initialized webdriver...")
         return driver
     else:
+        logger.info(f"No driver with name {driver} found...")
         return f"No driver with name {driver} could be found."
 
 
@@ -136,6 +153,8 @@ def merge_images(list_images, file_name):
         # using a little modified version, so it doesn't resize the pictures (don't need this in my case)
         # additionally, merging might not even be necessary here, since you can also just take the whole item table
     """
+
+    logger.info(f"Merging images: {list_images} and saving the final image under '{file_name}'...")
     # with this here in general, the images need to be of the same dimension(s) (at least other images with
     # with different dimensions (in this case at least different width) are not working) - tried with vstack()
     images = [PIL.Image.open(img) for img in list_images]
@@ -145,5 +164,6 @@ def merge_images(list_images, file_name):
     image_final = PIL.Image.fromarray(images_combined)
     image_final_path = f"..\\DiscordBot\\resources\\screenshots\\{file_name}.png"
     image_final.save(image_final_path)
+    logger.info(f"Merged the images and saved them here: {image_final_path}...")
 
     return image_final_path
