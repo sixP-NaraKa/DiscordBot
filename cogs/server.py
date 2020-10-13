@@ -9,13 +9,15 @@ import utils.utilities as ut
 # from utils.utilities import send_dm
 
 
+logger = logging.getLogger("discord.Server")
+
+
 class Server(commands.Cog):
     """ Channel and Guild/Server related commands """
-    
+
     def __init__(self, bot):  # bot is from --> discord_bot.CommandBot
         self.bot = bot
-        self.logger = logging.getLogger("discord.Server")
-        self.logger.info("Server() started...")
+        logger.info("Server() started...")
 
     @commands.command(name="create-category",
                       help="Create a given category."
@@ -36,12 +38,15 @@ class Server(commands.Cog):
         :return:
         """
 
+        logger.info(f"Creating new category '{category_name}'...")
         guild = ctx.guild
         existing_category = discord.utils.get(guild.categories, name=category_name)
         if existing_category is None:
             category = await guild.create_category_channel(category_name)
+            logger.info(f"Category '{category_name}' created!")
             return await ctx.send(f"Category '{category}' created!")
         else:
+            logger.debug(f"Category '{category_name}' already exists!")
             return ctx.send(f"Category '{category_name}' already exists!")
 
     @commands.command(name="delete-category",
@@ -65,7 +70,7 @@ class Server(commands.Cog):
         :return: notifies the user of the outcome - if deleted or not
         """
 
-        response = ""
+        logger.info(f"Deleting category '{category_name}'...")
         existing_category = discord.utils.get(ctx.guild.categories, name=category_name)
         if existing_category is not None:  # if the category exists
             if delete_channels is True and existing_category.channels is not None:  # ... and if channels are not empty
@@ -73,15 +78,18 @@ class Server(commands.Cog):
                 for channel in existing_category.channels:
                     names.append(channel.name)
                     await channel.delete()
-                response += "Deleted channels: \n" + "\n".join(names) + "\n"
+                response = "Deleted channels: \n" + "\n".join(names) + "\n"
             # after the channels have been deleted (or not), continue with the deletion of the category itself
             else:
-                response += f"Category '{existing_category}' has no channels to delete. Skipping...\n"
+                response = f"Category '{existing_category}' has no channels to delete. Skipping...\n"
+                logger.info(f"Category {existing_category} has no channels to delete. Skipping...")
 
             await existing_category.delete()
+            logger.info(f"Category '{existing_category}' deleted (and its channels if applicable)...")
             return await ctx.send(f"{response}"
                                   f"Category '{existing_category}' deleted.")
         else:
+            logger.debug(f"Category '{category_name}' does not exist...")
             return await ctx.send(f"Cannot delete category '{category_name}': does not exist. ")
 
     @commands.command(name="create-channel",
@@ -127,6 +135,7 @@ class Server(commands.Cog):
         :return: creates the channel and notifies the user
         """
 
+        logger.info(f"Creating channel '{channel_name}' under possible category '{category_name}'...")
         # simple check to see if the channel name .lower() already exists in the server/guild
         # only text based channels are always put to lower-case, no matter what
         # in order to, at this moment, make it easier to handle the deletion of individual channels,
@@ -135,25 +144,32 @@ class Server(commands.Cog):
         existing_channel = discord.utils.get(ctx.guild.channels, name=channel_name.lower())
         existing_category = discord.utils.get(ctx.guild.categories, name=category_name)
         if existing_channel:  # if channel already exists (looks for it in the whole server/guild - for now), return
+            logger.info(f"Channel '{channel_name}' already exists! Exiting...")
             return await ctx.send(f"Channel '{channel_name}' already exists.")
         if category_name != "" and not existing_category:  # if a category was specified and it does not exist
+            logger.info(f"Category '{category_name}' does not exist! Exiting...")
             return await ctx.send(f"Category '{category_name}' does not exist.")
 
         # if the checks so far have been successful, see if text or voice channel should be created
         text_or_voice = text_or_voice.lower()
         if text_or_voice == "t" and existing_category:  # if "t" and specified category exists
+            logger.info(f"Text channel '{channel_name}' created under category '{category_name}'.")
             await ctx.guild.create_text_channel(channel_name, category=existing_category)
             return await ctx.send(f"Text channel '{channel_name}' created under category '{category_name}'.")
         elif text_or_voice == "t" and category_name == "":  # if "t" only and category was unspecified
+            logger.info(f"Text channel '{channel_name}' created.")
             await ctx.guild.create_text_channel(channel_name)
             return await ctx.send(f"Text channel '{channel_name}' created.")
         if text_or_voice == "v" and existing_category:  # if "v" and specified category exists
+            logger.info(f"Voice channel '{channel_name}' created under category '{category_name}'.")
             await ctx.guild.create_voice_channel(channel_name, category=existing_category)
             return await ctx.send(f"Voice channel '{channel_name}' created under category '{category_name}'.")
         elif text_or_voice == "v" and category_name == "":  # if "v" only and category was unspecified
+            logger.info(f"Voice channel '{channel_name}' created.")
             await ctx.guild.create_voice_channel(channel_name)
             return await ctx.send(f"Voice channel '{channel_name}' created.")
         else:  # if none of the above (neither "t" or "v" essentially)
+            logger.debug("Neither 't' (for Text) or 'v' (for Voice) as the channel base have been specified!")
             return await ctx.send("Specify the channel to be created as either 't' (or 'T') for a text-based channel, "
                                   "or 'v' (or 'V') for a voice-based channel."
                                   "\nSee '!help create-channel' for example usages.")
@@ -185,14 +201,17 @@ class Server(commands.Cog):
         :return: deletes the channel (if it exists) and notifies the user
         """
 
+        logger.info(f"Deleting channel '{channel_name}'...")
         guild = ctx.guild
         existing_channel = discord.utils.get(guild.channels, name=channel_name)
         if existing_channel:
             # existing_channel_id = existing_channel.id
+            logger.info(f"Deleted channel '{channel_name}'...")
             await ctx.send(f"Deleting channel: '{channel_name}'")
             await existing_channel.delete()
             return await ctx.send(f"Channel '{channel_name}' deleted.")
         else:
+            logger.info(f"Cannot delete channel '{channel_name}': does not exist...")
             return await ctx.send(f"Cannot delete channel '{channel_name}': does not exist.")
 
     @commands.command(name="members",
@@ -235,6 +254,7 @@ class Server(commands.Cog):
         :return: a message to the user who invoked this command, stating that they received a DM from the Bot.
         """
 
+        logger.info("Retrieving guild/server member list...")
         general_info = f"General information:" \
                        f"\n{ctx.bot.user.name} is connected to the following guild/server:" \
                        f"\nName - {ctx.guild}" \
@@ -257,6 +277,7 @@ class Server(commands.Cog):
             # joins the above extracted list of user name and discrim into an easy to output string
             members += "\n- ".join(guild_members)
 
+        logger.info("Retrieved guild/server member list...")
         # can do only one return, since in this case here it works just fine
         await ut.send_dm(user=ctx.author, guild=ctx.guild, category=ctx.channel.category, channel=ctx.channel,
                          command=ctx.command, text=members, info=general_info)
