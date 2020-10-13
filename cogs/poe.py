@@ -14,26 +14,28 @@ import utils.utilities as ut
 # from utils.utilities import get_parser, initialize_driver
 
 
+logger = logging.getLogger("discord.PoE")
+
 # two dictionaries of the PoE currency items (in poe.trade)
 # with the same entries but in a different "order" - nice to have, so you can look up items and
 # their IDs both ways
 
 # a dict: key = ID, value = name
-currency_dict = {1: "Orb of Alteration", 2: "Orb of Fusing", 3: "Orb of Alchemy", 4: "Chaos Orb", 5: "Gemcutter's Prism",
-                 6: "Exalted Orb", 7: "Chromatic Orb", 8: "Jeweller's Orb", 9: "Orb of Chance",
-                 10: "Cartographer's Chisel", 11: "Orb of Scouring", 13: "Orb of Regret", 14: "Regal Orb",
-                 15: "Divine Orb", 16: "Vaal Orb", 17: "Scroll of Wisdom", 18: "Portal Scroll", 19: "Armourer's Scrap,",
-                 20: "Blacksmith's Whetstone", 21: "Glassblower's Bauble", 22: "Orb of Transmutation",
-                 23: "Orb of Augmentation", 24: "Mirror of Kalandra", 25: "Eternal Orb", 26: "Perandus Coin",
-                 27: "Silver Coin"}
+id_name_curr = {1: "Orb of Alteration", 2: "Orb of Fusing", 3: "Orb of Alchemy", 4: "Chaos Orb", 5: "Gemcutter's Prism",
+                6: "Exalted Orb", 7: "Chromatic Orb", 8: "Jeweller's Orb", 9: "Orb of Chance",
+                10: "Cartographer's Chisel", 11: "Orb of Scouring", 13: "Orb of Regret", 14: "Regal Orb",
+                15: "Divine Orb", 16: "Vaal Orb", 17: "Scroll of Wisdom", 18: "Portal Scroll", 19: "Armourer's Scrap,",
+                20: "Blacksmith's Whetstone", 21: "Glassblower's Bauble", 22: "Orb of Transmutation",
+                23: "Orb of Augmentation", 24: "Mirror of Kalandra", 25: "Eternal Orb", 26: "Perandus Coin",
+                27: "Silver Coin"}
 
 # same as above, but order different: key = name, value = ID
-currencies = {"Orb of Alteration": 1, "Orb of Fusing": 2, "Orb of Alchemy": 3, "Chaos Orb": 4, "Gemcutter's Prism": 5,
-              "Exalted Orb": 6, "Chromatic Orb": 7, "Jeweller's Orb": 8, "Orb of Chance": 9, "Cartographer's Chisel": 10,
-              "Orb of Scouring": 11, "Orb of Regret": 13, "Regal Orb": 14, "Divine Orb": 15, "Vaal Orb": 16,
-              "Scroll of Widsom": 17, "Portal Scroll": 18, "Armourer's Scrap": 19, "Blacksmith's Whetstone": 20,
-              "Glassblower's Bauble": 21, "Orb of Transmutation": 22, "Orb of Augmentation": 23,
-              "Mirror of Kalandra": 24, "Eternal Orb": 25, "Perandus Coin": 26, "Silver Coin": 27}
+name_id_curr = {"Orb of Alteration": 1, "Orb of Fusing": 2, "Orb of Alchemy": 3, "Chaos Orb": 4, "Gemcutter's Prism": 5,
+                "Exalted Orb": 6, "Chromatic Orb": 7, "Jeweller's Orb": 8, "Orb of Chance": 9, "Cartographer's Chisel": 10,
+                "Orb of Scouring": 11, "Orb of Regret": 13, "Regal Orb": 14, "Divine Orb": 15, "Vaal Orb": 16,
+                "Scroll of Widsom": 17, "Portal Scroll": 18, "Armourer's Scrap": 19, "Blacksmith's Whetstone": 20,
+                "Glassblower's Bauble": 21, "Orb of Transmutation": 22, "Orb of Augmentation": 23,
+                "Mirror of Kalandra": 24, "Eternal Orb": 25, "Perandus Coin": 26, "Silver Coin": 27}
 
 
 def get_price(want_currency, have_currency="Chaos Orb"):
@@ -57,15 +59,16 @@ def get_price(want_currency, have_currency="Chaos Orb"):
         :return: returns the extracted information
     """
 
+    logger.info(f"Retrieving current price of '{want_currency}' with '{have_currency}'...")
     # if given currency name is NOT in the above dict, return
-    if want_currency not in currencies.keys() or have_currency not in currencies.keys():
+    if want_currency not in name_id_curr.keys() or have_currency not in name_id_curr.keys():
         return f"This currency item does not exist, please try again."
 
     # if given currency name is in the above dict, continue here
 
     # set the item id and the compare item id to the value of their item names
-    want_item_id = currencies[want_currency]
-    have_item_id = currencies[have_currency]
+    want_item_id = name_id_curr[want_currency]
+    have_item_id = name_id_curr[have_currency]
 
     # if both lookup item and compare item are Chaos, set the compare item to Exalts
     if want_item_id == 4 and have_item_id == 4:
@@ -108,10 +111,7 @@ def get_price(want_currency, have_currency="Chaos Orb"):
     joined_items = "   ".join(items)
     if re.search(pattern, joined_items) is not None:
         for catch in re.finditer(pattern, joined_items):
-            # print(catch[0])  # catch is a match object
             matches.append(catch[0])
-            # it still catches the single "1"'s there, but not sure how to completely avoid that :/
-            # will just write each catch[0] into a list, and then simply take every 2nd entry in that list LUL
     else:
         return f"Something went wrong... Please try again. If this problem persists, " \
                f"please contact the creator of this Bot."
@@ -126,8 +126,6 @@ def get_price(want_currency, have_currency="Chaos Orb"):
     # get the median (rough current price)
     result = sum_prices / len(matches)
 
-    # get the compare item name via its ID - not really needed anymore, since we have it above already, but whatever
-    # comp_item_name = currency_dict[have_item_id]
     return "One '{}' is worth roughly {:.4f} {}s. 10 roughly {:.4f}. \nURL: {}".format(want_currency,
                                                                                        result,
                                                                                        have_currency,
@@ -137,11 +135,10 @@ def get_price(want_currency, have_currency="Chaos Orb"):
 
 class PoE(commands.Cog):
     """ PoE (Path of Exile) specific commands """
-    
+
     def __init__(self, bot):  # bot is from --> discord_bot.CommandBot
         self.bot = bot
-        self.logger = logging.getLogger("discord.PoE")
-        self.logger.info("PoE() started...")
+        logger.info("PoE() started...")
 
     @commands.command(name="price",
                       help="Returns back the current rough price of a given currency (in Chaos by default)."
@@ -166,6 +163,7 @@ class PoE(commands.Cog):
 
         price_info = get_price(want_currency=want_currency, have_currency=have_currency)
         await ctx.send(f"{price_info}")
+        logger.info("Retrieved currency price...")
 
     @commands.command(name="exalt",
                       help="Returns back the current rough price of an Exalted Orb."
@@ -187,6 +185,7 @@ class PoE(commands.Cog):
         have_item = "Chaos Orb"
         price_info = get_price(want_currency=want_item, have_currency=have_item)
         await ctx.send(f"{price_info}")
+        logger.info("Retrieved currency price...")
 
     @commands.command(name="chaos",
                       help="Returns back the current rough price of an Chaos Orb."
@@ -208,6 +207,7 @@ class PoE(commands.Cog):
         have_item = "Exalted Orb"
         price_info = get_price(want_currency=want_item, have_currency=have_item)
         await ctx.send(f"{price_info}")
+        logger.info("Retrieved currency price...")
 
     @commands.command(name="item",
                       help="Searches for a given item and its (at this time) sockets, linked sockets and colouring. "
@@ -239,17 +239,22 @@ class PoE(commands.Cog):
         :return: a message containing the extracted information to the user/channel it was called from
         """
 
+        await ctx.send("Might take a little - check your DMs in a bit!")
+        logger.info(f"Getting PoE item '{item_of_interest}' with criteria '{colour_s_l}' and '{args}' (r g b w)...")
         # check to see if colour_s_l is either l or s, otherwise notify user
         if colour_s_l.lower() != "l" and colour_s_l.lower() != "s":
+            logger.debug(f"Passed colour parameter '{colour_s_l}' does not match the needed criteria ('s' or 'l')...")
             return await ctx.send(f"Passed through colour parameter '{colour_s_l}' does not match 's' (sockets only) "
                                   f"or 'l' (links only).")
 
         # possible check to also make: see if any of the numbers is smaller than 0, if so, return back and notify user
+        # or just use 0 / "" as the default then
         if len(args) >= 6:
             socket_count_min, linked_sockets_min, r, g, b, w = args[0:6:1]
 
             # check to see if the number of the sockets is lower than that of the linked socket
             if socket_count_min < linked_sockets_min:
+                logger.debug("Number of sockets cannot be lower than the number of linked sockets!")
                 return await ctx.send(f"The number of Sockets '{socket_count_min}' is lower "
                                       f"than the number of Links '{linked_sockets_min}'.")
 
@@ -259,21 +264,27 @@ class PoE(commands.Cog):
             try:
                 socket_colour_sum = sum([int(r), int(g), int(b), int(w)])
             except TypeError as te:
+                logger.debug("One or more Socket Colours cannot be converted to 'int'..."
+                                  f"{te.__str__()}")
                 return await ctx.send(f"One or more of the given Socket Colours "
                                       f"cannot be converted to the needed datatype (int):"
                                       f"\n{te.__str__()}")
             if socket_colour_sum > socket_count_min:  # and/or > than linked_sockets_min
+                logger.debug("Number of Socket Colours cannot exceed number of actual Sockets!")
                 return await ctx.send(f"The sum of the Socket Colours '{socket_colour_sum}' cannot exceed "
                                       f"the number of Sockets '{socket_count_min}' to look for.")
         else:
+            logger.debug(f"Expected 6 additional parameters, got {len(args)}...")
             return await ctx.send(f"Error: expected 6 additional criteria, got {len(args)}")
 
-        driver = ut.initialize_driver(driver="Firefox", addon_ublock=True)
+        driver = ut.initialize_driver(driver="Firefox", addon_ublock=True, headless=False)
         # weird ass checks, will add more to them
         if type(driver) == str:
             if "PATH" in driver:
+                logger.debug("Webdriver 'Firefox' could not be initialized. Path may be missing...")
                 return await ctx.send("The webdriver could not be initialized. The webdriver path may be missing or "
                                       "something unexpected happened. \nPlease contact the creator of this Bot.")
+            logger.debug("Could not find the webdriver specified...")
             return await ctx.send("Could not find the webdriver specified.\nIf the problem persists, "
                                   "contact the creator of this Bot.")
 
@@ -319,12 +330,13 @@ class PoE(commands.Cog):
         # a simple check to see if any results came up
         if "Nothing was found. Try widening your search criteria." in driver.page_source:
             driver.close()
+            logger.info("Nothing with the given search criteria could be found...")
             return await ctx.send(f"No item with name '{item_of_interest}' could be found.")
 
         # if results came up, extract the first item via screenshot(s) and present them to the user
 
         # iterate over the first table containing UP TO the first 6 results
-        # if you want more results returned, simply increase the UPT TO number!
+        # if you want more results returned, simply increase the UP TO number!
         saved_screenshots = []
         whispers = []
         for i in range(0, 6, 1):
@@ -344,13 +356,18 @@ class PoE(commands.Cog):
 
                 whisper.click()
                 whispers.append(paste())
+                logger.info(f"Screenshot from element {item.__str__()} saved as: {file_path}...")
                 # sleep(1)
             except Exception as e:
+                logger.debug(f"Exception (ElementNotFound) at run {i}..."
+                                  f"{e}")
                 print(f"At run {i}:", e)
 
         current_url = driver.current_url
         driver.close()
-        
+        logger.info("Information gathered, closed the driver...")
+
+        logger.info(f"Sending gathered information via DM to {ctx.author}...")
         user = ctx.author
         await ctx.send("Check your DM for the results!")
         await user.create_dm()
@@ -365,3 +382,5 @@ class PoE(commands.Cog):
         for count, screenshot in enumerate(saved_screenshots):
             await user.dm_channel.send(f"\n{whispers[count]}",
                                        file=discord.File(screenshot))
+            logger.info(f"Info for item {count} send...")
+        logger.info("Command finished. Returning...")
