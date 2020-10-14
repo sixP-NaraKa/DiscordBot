@@ -50,7 +50,7 @@ class Server(commands.Cog):
             return ctx.send(f"Category '{category_name}' already exists!")
 
     @commands.command(name="delete-category",
-                      help="Deletes a given category. You can specify with <delete_channels> True to also"
+                      help="Deletes a given category. You can specify with <delete_channels> True to also "
                            "delete all its channels. Defaults to False if left empty."
                            "\nOnly Users with the Admin role can use this command."
                            "\nNote: case sensitive!",
