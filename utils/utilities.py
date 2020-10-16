@@ -162,7 +162,7 @@ def merge_images(list_images, file_name):
     images_combined = np.vstack(img for img in images)
 
     image_final = PIL.Image.fromarray(images_combined)
-    image_final_path = f"..\\DiscordBot\\resources\\screenshots\\{file_name}.png"
+    image_final_path = f"..\\DiscordBot\\resources\\images\\{file_name}.png"
     image_final.save(image_final_path)
     logger.info(f"Merged the images and saved them here: {image_final_path}...")
 
