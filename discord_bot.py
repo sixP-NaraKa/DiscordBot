@@ -156,6 +156,13 @@ class CommandBot(commands.Bot):  # inherit from discord.ext.commands.Bot
             logger.error(f"User {ctx.author}, with ID {ctx.author.id} tried to use a command '{ctx.message.content}'"
                          f", which does not work in Private Messages: {error}...")
             return await ctx.send("Error: This command does not work in a private message.")
+        # just print out any other exceptions to the console for now and log them
+        else:
+            print(error)
+            logger.error(error)
+            return await ctx.send(f"Something unexpected happened: {error}"
+                                  f"\nTry the action/command '{ctx.command}' again."
+                                  f"If the problem persists, contact an Admin/the creator of this Bot. Thank you!")
 
 
 if __name__ == "__main__":
