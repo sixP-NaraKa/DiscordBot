@@ -43,7 +43,7 @@ The Bot will reply with the extracted information.*
 
 - **!item "item name" "socket or links coloured" "6 args to set the amount of sockets and links, and their colours"**
 
-*This command is for extracting information from poe.trade (screenshots of the first 6 results of the found results with the given criteria - as well as a direct whisper to the seller) 
+*This command is for extracting information from poe.trade (screenshots of the first 6 results found with the given criteria - as well as a direct whisper to the seller) 
 and send them via a DM to the user who invoked this command.
 For example:*
 
