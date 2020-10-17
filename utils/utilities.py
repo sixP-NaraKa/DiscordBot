@@ -2,6 +2,7 @@
 
 
 import requests
+from pathlib import Path
 
 import discord
 import logging
@@ -167,3 +168,32 @@ def merge_images(list_images, file_name):
     logger.info(f"Merged the images and saved them here: {image_final_path}...")
 
     return image_final_path
+
+
+def del_image_files(directory: str = Path.cwd(), patterns: tuple = ("*.png", "*.jpg")):
+    """
+    Deletes all the found image files in a given directory which match the given pattern (naming).
+
+    :param directory: the directory to look for image files to delete - defaults to the current working directory
+    :param patterns: the pattern(s) to which look for image files - defaults to .png and .jpg image files
+
+    :return: will not notify if anything has been deleted / found (errors might still come up though and get printed)
+    """
+
+    import os
+
+    path = Path(directory)
+    logger.info(f"Prepping to delete files which match pattern(s) '{patterns}' in directory '{directory}'..."
+                f"See just below here if anything has been found.")
+    for pattern in patterns:
+        files = path.glob(pattern)
+        found_files = list(files)
+        if not found_files:
+            # print(f"No file(s) with extension '{pattern}' found. Skipping this extension...")
+            logger.info(f"No file(s) with pattern '{pattern}' found. Skipping this pattern...")
+            continue
+        for file in found_files:
+            os.remove(file)
+            # print(f"File {file.name} removed...")
+            logger.info(f"File {file.name} removed...")
+    return
