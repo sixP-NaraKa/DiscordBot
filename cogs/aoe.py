@@ -168,12 +168,12 @@ class AoE(commands.Cog):
 
         if amount > 5:  # since only 5 players per plot, save them into a list to later merge them together
             merged_file = ut.merge_images(files_to_merge, file_name=f"top_{amount}_players")
-            await ctx.send(f"Requested data of the Top {amount} players of the current AoE2:DE leaderboard:",
+            await ctx.send(f"Requested data of the Top {amount} players of the current AoE2:DE 1v1 RM leaderboard:",
                            file=discord.File(merged_file))
             # deleting all the image files with the naming scheme given - if none is found/deleted, nothing will happen
             ut.del_image_files(directory="..\\DiscordBot\\resources\\images\\", patterns=("top_*.png", "top_*.jpg"))
         else:  # if <= 5, simply only send the 1 plot
-            await ctx.send(f"Requested data of the Top {amount} players of the current AoE2:DE leaderboard:",
+            await ctx.send(f"Requested data of the Top {amount} players of the current AoE2:DE 1v1 RM leaderboard:",
                            file=discord.File(filepath))
             # deleting all the image files with the naming scheme given - if none is found/deleted, nothing will happen
             ut.del_image_files(directory="..\\DiscordBot\\resources\\images\\", patterns=("top_*.png", "top_*.jpg"))
