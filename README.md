@@ -55,4 +55,4 @@ see: ![requirements.txt](requirements.txt)
 
 ## ToDo
 
-alot! :D Adding more to it as the time goes by!
+a ton! :D Adding more to it as the time goes by!
