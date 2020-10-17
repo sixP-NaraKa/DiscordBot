@@ -383,4 +383,6 @@ class PoE(commands.Cog):
             await user.dm_channel.send(f"\n{whispers[count]}",
                                        file=discord.File(screenshot))
             logger.info(f"Info for item {count} send...")
-        logger.info("Command finished. Returning...")
+        logger.info("Command finished. Deleting all the image files used...")
+        # deleting all the image files with the naming scheme given - if none is found/deleted, nothing will happen
+        ut.del_image_files(directory="..\\DiscordBot\\resources\\images\\", patterns=("table_*.png", "table_*.jpg"))
