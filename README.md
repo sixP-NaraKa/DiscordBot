@@ -18,7 +18,7 @@ Here is a list of the related game commands and what they do!
 
 *This commmand is for extracting the current 1v1 RM leaderboard specified by the number of players optionally given to this command.
 The default players if number is omitted is 5.
-This returns a image containing the number of players of the leaderboard.
+This returns a image containing the number of players of the leaderboard - including their current ranking, their games (wins/losses) and more.
 For each 5 players, another graph will be made - all graphs at the end will be merged vertically into one, as can be seen here:*
 
 <img src="/resources/images/top_10_players.png" alt="AoE2:DE 1v1 RM leaderboard - Top 10"/>
@@ -37,7 +37,7 @@ The Bot will reply with the extracted information.*
 
 - **!chaos** & **!exalt**
 
-*Both commands do the same as the* **!price** *command, but only for the respective item in question (Chaos to Exalt, and Exalt to Chaos) - since both Chaos and Exalted Orbs are the currency items you will most look up the price for.
+*Both commands do the same as the* **!price** *command, but only for the respective item in question (Chaos to Exalt, and Exalt to Chaos) - since both Chaos and Exalted Orbs are the currency items you will most of the time look up the price for.*
 
 
 - **!item "item name" "socket or links coloured" "6 args to set the amount of sockets and links, and their colours"
