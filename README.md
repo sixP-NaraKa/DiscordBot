@@ -18,7 +18,7 @@ Here is a list of the related game commands and what they do!
 
 *This commmand is for extracting the current 1v1 RM leaderboard specified by the number of players optionally given to this command.
 The default players if number is omitted is 5.
-This returns a image containing the number of players of the leaderboard - including their current ranking, their games (wins/losses) and more.
+This returns an image containing the number of players of the leaderboard - including their current ranking, their games (wins/losses) and more.
 For each 5 players, another graph will be made - all graphs at the end will be merged vertically into one, as can be seen here:*
 
 <img src="/resources/images/top_10_players.png" alt="AoE2:DE 1v1 RM leaderboard - Top 10"/>
@@ -28,7 +28,7 @@ For each 5 players, another graph will be made - all graphs at the end will be m
 
 - **!price "item you want" "item you have"**
 
-*This command is for extracting the current rough price of a currency item you want, compared against a currency item you have.
+*This command is for extracting the current rough price from poe.trade of a currency item you want, compared against a currency item you have.
 If the "item you have" is omitted, it will default to "Chaos Orb" if "item you want" is not it as well, otherwise it defaults to "Exalted Orb".
 The Bot will reply with the extracted information.*
 
@@ -40,10 +40,9 @@ The Bot will reply with the extracted information.*
 *Both commands do the same as the* **!price** *command, but only for the respective item in question (Chaos to Exalt, and Exalt to Chaos) - since both Chaos and Exalted Orbs are the currency items you will most of the time look up the price for.*
 
 
-- **!item "item name" "socket or links coloured" "6 args to set the amount of sockets and links, and their colours"
+- **!item "item name" "socket or links coloured" "6 args to set the amount of sockets and links, and their colours"**
 
-*This command is for extracting information (screenshots of the first 6 results of the found results with the gjven criteria 
-- as well as a direct whisper to the seller) 
+*This command is for extracting information from poe.trade (screenshots of the first 6 results of the found results with the given criteria - as well as a direct whisper to the seller) 
 and send them via a DM to the user who invoked this command.
 For example:*
 
