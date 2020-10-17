@@ -1,7 +1,7 @@
 # DiscordBot - CommandBot
 Testing a Discord Bot! Some more or less basic stuff - adding more to it!
 
-This Discord Bot does, apart from creating channels/categories and deleting them, also a variety of other things, mostly regarding the two games "Age of Empires 2: Definitive Edition" and "Path of Exile".
+This Discord Bot does, apart from creating channels/categories and deleting them, also a variety of other things, mostly regarding the two games "Age of Empires 2: Definitive Edition (AoE2:DE)" and "Path of Exile (PoE)".
 
 Here is a list of the related game commands and what they do!
 
