@@ -15,12 +15,17 @@ That being said, here is a list of the related game commands and what they do!
 <img src="/resources/images/ao2_stats.png" alt="AoE2:DE stats"/>
 
 
-- **!top "amount of players"**
+- **!top "amount of players" "leaderboard_id"**
 
-*This commmand is for extracting the current 1v1 RM leaderboard specified by the number of players optionally given to this command.
-The default players if number is omitted is 5.
+*This commmand is for extracting the current top players from a leaderboard specified by the user.
+The default players if number is omitted is 5. The default leaderboard if omitted is 3 (i.e. 1v1 RM).
+Available IDs: 1 (1v1 DM), 2 (Team DM), 3 (1v1 RM), 4 (Team RM).
 This returns an image containing the number of players of the leaderboard - including their current ranking, their games (wins/losses) and more.
 For each 5 players, another graph will be made - all graphs at the end will be merged vertically into one, as can be seen here:*
+
+Example Usage:
+
+*!top 10 3* will yield:
 
 <img src="/resources/images/top_10_players.png" alt="AoE2:DE 1v1 RM leaderboard - Top 10"/>
 
