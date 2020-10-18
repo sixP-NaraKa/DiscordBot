@@ -197,3 +197,39 @@ def del_image_files(directory: str = Path.cwd(), patterns: tuple = ("*.png", "*.
             # print(f"File {file.name} removed...")
             logger.info(f"File {file.name} removed...")
     return
+
+
+def set_bar_labels(ax):
+    """
+    For each bar chart in the graph (ax), set the actual value of the bar on top of it (bar label).
+
+    :param ax: the axes to modify the bar labels on
+
+    :return: the modified axes
+    """
+
+    logger.info("Modifying the bar labels to their actual values...")
+    # to set the bar label for each bar in the chart with the actual value of the bar
+    for rect in ax.patches:
+        y_value = rect.get_height()
+        x_value = rect.get_x() + rect.get_width() / 2
+
+        space = 3
+        va = "bottom"
+
+        if y_value < 0:  # take values <0 also into consideration
+            space *= -1
+            va = "top"
+
+        label = "{:.0f}".format(y_value)
+        ax.annotate(
+            label,
+            (x_value, y_value),
+            xytext=(0, space),
+            textcoords="offset points",
+            ha="center",
+            va=va,
+            rotation=45)
+
+    logger.info("Modified the bar labels in the given chart... Returning the ax(es).")
+    return ax
