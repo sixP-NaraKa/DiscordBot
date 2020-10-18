@@ -56,6 +56,7 @@ class AoE(commands.Cog):
         ax.set_title("AoE2:DE - current player stats -- powered by https://aoe2.net/api")
         ax.set_xlabel("Status")
         ax.set_ylabel("Player numbers")
+        ax = ut.set_bar_labels(ax=ax)  # set the bar labels for each bar
         xlabels = players.keys()  # the xlabels are the keys from the dict
         ax.set_xticklabels(xlabels, rotation=0, ha="center")
         figure = plt.gcf()
@@ -137,6 +138,9 @@ class AoE(commands.Cog):
             # to set the legend to the place of your choosing
             # in my case outside the plot/box area
             ax.legend(bbox_to_anchor=(1, 1), loc="upper left")
+            
+            # to set the bar label for each bar in the chart with the actual value of the bar
+            ax = ut.set_bar_labels(ax=ax)
 
             # retrieve x labels (names of the players) and current rank in the leaderboard and set them for each x label
             x_labels = []
@@ -146,29 +150,7 @@ class AoE(commands.Cog):
 
             # for the rotating of the x labels to horizontal and centering them
             ax.set_xticklabels(x_labels, rotation=0, ha="center")
-
-            # to set the bar label for each bar in the chart with the actual value of the bar
-            for rect in ax.patches:
-                y_value = rect.get_height()
-                x_value = rect.get_x() + rect.get_width() / 2
-
-                space = 3
-                va = "bottom"
-
-                if y_value < 0:  # take values <0 also into consideration
-                    space *= -1
-                    va = "top"
-
-                label = "{:.0f}".format(y_value)
-                ax.annotate(
-                    label,
-                    (x_value, y_value),
-                    xytext=(0, space),
-                    textcoords="offset points",
-                    ha="center",
-                    va=va,
-                    rotation=45)
-
+            
             # sets the current figure via gcf() to a size in inches,
             # so the graph can be saved in a higher resolution / bigger size (so it is more readable)
             figure = plt.gcf()
