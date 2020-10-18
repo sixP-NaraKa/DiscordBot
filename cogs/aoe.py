@@ -65,32 +65,49 @@ class AoE(commands.Cog):
         await ctx.send(file=discord.File(filepath))
       
     @commands.command(name="top",
-                      help="Displays graph(s) of the Top players in 1v1 RM of the AoE2: DE leaderboard."
-                           "\nSimply enter the number of players you want to see! Defaults to 5 if left empty."
+                      help="Displays graph(s) of the Top players of the AoE2:DE leaderboard of your choosing."
+                           "\nSimply enter the number of players you want to see (Defaults to 5 if left empty) "
+                           "and the leaderboard ID (1v1 DM - 1, Team DM - 2, 1v1 RM - 3, Team RM - 4)! Defaults to 3."
                            "\nExample usage:"
-                           "\n- !top 10")
-    async def top(self, ctx, amount: int = 5):
+                           "\n- !top 10 3"
+                           "\nGets you the Top 10 players of the 1v1 RM leaderboard.")
+    async def top(self, ctx, amount: int = 5, leaderboard_id: int = 3):
         """
         Command:\n
-        Displays graph(s) for the top players of the current AoE2:DE leaderboard.
+        Displays graph(s) for the top players of the current AoE2:DE leaderboard - data powered by aoe2.net/#api.
         For each 5 players, a new graph will be plotted.
-        At the end, all graphs, will be merged into one image vertically - with the help of a already pre-defined
-        function which merges X number of images.
+        At the end, all graphs will be merged into one image vertically (horizontally is nice too)
+        - with the help of a already pre-defined function which merges X number of images.
+
         After plotting the graphs and sending the merged image, all the used images will be swiftly deleted.
-        ToDo: make the command also usable with other AoE2:DE game modes, and not only 1v1 RM (should be pretty easy)
 
         Might put the separate parts of the function into their own function parts.
 
         :param ctx: the Context data (gets it from Discord)
         :param amount: the amount of players to get from the leaderboard - defaults to the first 5 players
+                    (not more than 10000 allowed by the API)
+        :param leaderboard_id: the leaderboard to get the top players from - defaults to the 1v1 RM leaderboard (ID: 3)
 
         :return: sends the plotted graph
         """
 
+        # Leaderboard ID (Unranked=0, 1v1 Deathmatch=1, Team Deathmatch=2, 1v1 Random Map=3, Team Random Map=4)
+        leaderboards_ids = {1: "1v1 Deathmatch", 2: "Team Deathmatch", 3: "1v1 Random Map", 4: "Team Random Map"}
+
+        if amount > 10000:
+            logger.debug(f"Entries to get ('{amount}') cannot be more than 10000!")
+            return await ctx.send(f"The amount of players to get ('{amount}') cannot exceed 10000!")
+        if leaderboard_id not in leaderboards_ids.keys():
+            logger.debug(f"'{leaderboard_id}' is not a valid leaderboard ID.")
+            return await ctx.send("Not a valid leaderboard ID. Available IDs:"
+                                  "\n1v1 DM - 1, Team DM - 2, 1v1 RM - 3, Team RM - 4")
+
+        leaderboard = leaderboards_ids[leaderboard_id]
+
         await ctx.send("Depending on how many players you requested, "
                        "it might take a little while to plot the graphs. "
                        "Please have a little bit of patience, thanks!")
-        url = f"https://aoe2.net/api/leaderboard?game=aoe2de&leaderboard_id=3&start=1&count={amount}"
+        url = f"https://aoe2.net/api/leaderboard?game=aoe2de&leaderboard_id={leaderboard_id}&start=1&count={amount}"
         data = ut.get_request_response(url, json=True)
         data = data["leaderboard"]
 
@@ -115,7 +132,7 @@ class AoE(commands.Cog):
             ax = df.plot(x="rank", y=["highest_rating", "rating", "games", "wins", "losses"], kind="bar")
             ax.set_xlabel("Player", x=0.02, y=0.8, style="italic", bbox={"facecolor": "orange"})
             ax.set_ylabel("Amount", x=1, y=0.05, style="italic", bbox={"facecolor": "orange"})
-            ax.set_title("Age Of Empires 2: Definitive Edition - Top Players (Leaderboard) 1v1 RM",
+            ax.set_title(f"Age Of Empires 2: Definitive Edition - Top Players (Leaderboard) {leaderboard}",
                          fontweight="bold", x=0.5, y=1.075, bbox={"facecolor": "orange"})
             # to set the legend to the place of your choosing
             # in my case outside the plot/box area
@@ -166,14 +183,16 @@ class AoE(commands.Cog):
             end += 5
             start += 5
 
-        if amount > 5:  # since only 5 players per plot, save them into a list to later merge them together
+        if amount > 5:  # since only 5 players per plot, merge them here together before sending
             merged_file = ut.merge_images(files_to_merge, file_name=f"top_{amount}_players")
-            await ctx.send(f"Requested data of the Top {amount} players of the current AoE2:DE 1v1 RM leaderboard:",
+            await ctx.send(f"Requested data of the Top {amount} players "
+                           f"of the current AoE2:DE {leaderboard} leaderboard:",
                            file=discord.File(merged_file))
             # deleting all the image files with the naming scheme given - if none is found/deleted, nothing will happen
             ut.del_image_files(directory="..\\DiscordBot\\resources\\images\\", patterns=("top_*.png", "top_*.jpg"))
         else:  # if <= 5, simply only send the 1 plot
-            await ctx.send(f"Requested data of the Top {amount} players of the current AoE2:DE 1v1 RM leaderboard:",
+            await ctx.send(f"Requested data of the Top {amount} players "
+                           f"of the current AoE2:DE {leaderboard} leaderboard:",
                            file=discord.File(filepath))
             # deleting all the image files with the naming scheme given - if none is found/deleted, nothing will happen
             ut.del_image_files(directory="..\\DiscordBot\\resources\\images\\", patterns=("top_*.png", "top_*.jpg"))
