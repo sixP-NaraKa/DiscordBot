@@ -39,9 +39,9 @@ name_id_curr = {"Orb of Alteration": 1, "Orb of Fusing": 2, "Orb of Alchemy": 3,
 
 
 def get_price(want_currency, have_currency="Chaos Orb"):
-    """ General method for searching for the price of a given Currency item in Path of Exile.
+    """ General function for searching for the price of a given Currency item in Path of Exile.
 
-        This method is easily reusable and makes it easier to search for specific currency items.
+        This function is easily reusable and makes it easier to search for specific currency items.
 
         Once it has its items and the sum of them, it performs a median calculation, to find the "more correct" pricing
         than just the first item could bring (might be a bot/troll pricing it way lower, etc.).
