@@ -38,7 +38,7 @@ class AoE(commands.Cog):
         :return: the current online player stats of AoE2:DE
         """
 
-        filepath = "..\\DiscordBot\\resources\\images\\ao2_stats.png"
+        filepath = "..\\DiscordBot\\resources\\images\\aoe2_stats.png"
 
         await ctx.send("In process. Might take a little. :)")
         aoe2_api = "https://aoe2.net/api/stats/players?game=aoe2de"
