@@ -178,3 +178,28 @@ class AoE(commands.Cog):
                            file=discord.File(filepath))
             # deleting all the image files with the naming scheme given - if none is found/deleted, nothing will happen
             ut.del_image_files(directory="..\\DiscordBot\\resources\\images\\", patterns=("top_*.png", "top_*.jpg"))
+            
+    @commands.command(name="rank",
+                      help="Retrieves the current player/rank information for a given player. "
+                           "If the player name has been omitted, the last successful retrieved data will be returned, "
+                           "if available."
+                           "\nNote: enter the name of the player as precise as it can get!")
+    async def get_player_stats(self, ctx, player_name: str = ""):
+        """
+        Command:\n
+        Retrieves the current rank and game stats of the given player.
+        If the player name has been left empty, the last successful retrieved data, if available, will be returned.
+
+        :param ctx: the Context data (gets it from Discord)
+        :param player_name: the player to look for - defaults to nothing if left empty
+
+        :return: returns the retrieved player information
+        """
+
+        # since the steam_id is empty: if no name is entered, the last successful result will be returned, if available
+        url = f"https://aoe2.net/api/nightbot/rank?leaderboard_id=3&" \
+              f"search={player_name}&steam_id=&flag=false"  # name has to be as precise as it can get!
+        logger.info(f"Retrieving player/rank data for '{player_name}' using '{url}...'")
+        data = ut.get_request_response(link=url, json=False)
+        logger.info(f"Retrieved the following data for player '{player_name}': '{data.text}'...")
+        await ctx.send(data.text)
