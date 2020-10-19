@@ -30,6 +30,15 @@ Example Usage:
 <img src="/resources/images/top_10_players.png" alt="AoE2:DE 1v1 RM leaderboard - Top 10"/>
 
 
+- **!rank "player name"**
+
+*This command retrieves the current rank, rating, total games played, winrate (%) as well as the current win-streak and the amount of dropped (disconnected) games.
+All thanks to the aoe2.net/#api.
+If the player name is omitted, the request will retrieve the latest successful result, if available.*
+
+<img src="/resources/images/aoe2_rank_command_discord.png" alt="AoE2:DE - Player stats"/>
+
+
 ## PoE commands:
 
 - **!price "item you want" "item you have"**
