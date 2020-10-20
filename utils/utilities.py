@@ -199,11 +199,12 @@ def del_image_files(directory: str = Path.cwd(), patterns: tuple = ("*.png", "*.
     return
 
 
-def set_bar_labels(ax):
+def set_bar_labels(ax, visible_zeros: bool = True):
     """
     For each bar chart in the graph (ax), set the actual value of the bar on top of it (bar label).
 
     :param ax: the axes to modify the bar labels on
+    :param visible_zeros: determines if zero values should be visible on the plot
 
     :return: the modified axes
     """
@@ -220,6 +221,9 @@ def set_bar_labels(ax):
         if y_value < 0:  # take values <0 also into consideration
             space *= -1
             va = "top"
+            
+        if visible_zeros is False and y_value == 0:  # don't make it show on the plot (visually)
+            continue
 
         label = "{:.0f}".format(y_value)
         ax.annotate(
