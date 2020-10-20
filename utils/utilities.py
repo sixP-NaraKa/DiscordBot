@@ -204,7 +204,7 @@ def set_bar_labels(ax, visible_zeros: bool = True):
     For each bar chart in the graph (ax), set the actual value of the bar on top of it (bar label).
 
     :param ax: the axes to modify the bar labels on
-    :param visible_zeros: determines if zero values should be visible on the plot
+    :param visible_zeros: determines if zero values should be visible on the plot - defaults to True
 
     :return: the modified axes
     """
