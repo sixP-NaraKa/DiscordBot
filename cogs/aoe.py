@@ -191,7 +191,7 @@ class AoE(commands.Cog):
         """
         Command:\n
         Retrieves the current rank and game stats of the given player.
-        If the player name has been left empty, the last successful retrieved data, if available, will be returned.
+        If the player name has been left empty, the current rank #1 player will be returned.
 
         :param ctx: the Context data (gets it from Discord)
         :param player_name: the player to look for - defaults to nothing if left empty
