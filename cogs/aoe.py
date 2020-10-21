@@ -199,7 +199,7 @@ class AoE(commands.Cog):
         :return: returns the retrieved player information
         """
 
-        # since the steam_id is empty: if no name is entered, the last successful result will be returned, if available
+        # since the steam_id is empty: if no name is entered, the #1 player will be returned by default, after testing
         url = f"https://aoe2.net/api/nightbot/rank?leaderboard_id=3&" \
               f"search={player_name}&steam_id=&flag=false"  # name has to be as precise as it can get!
         logger.info(f"Retrieving player/rank data for '{player_name}' using '{url}...'")
