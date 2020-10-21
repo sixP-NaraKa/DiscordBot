@@ -160,8 +160,8 @@ class CommandBot(commands.Bot):  # inherit from discord.ext.commands.Bot
         else:
             print(error)
             logger.error(error)
-            return await ctx.send(f"Something unexpected happened: {error}"
-                                  f"\nTry the action/command '{ctx.command}' again. "
+            return await ctx.send(f"Something unexpected happened..."
+                                  f"\nTry the command '{ctx.command}' again. "
                                   f"If the problem persists, contact an Admin/the creator of this Bot. Thank you!")
 
 
