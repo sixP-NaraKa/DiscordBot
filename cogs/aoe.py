@@ -38,7 +38,7 @@ class AoE(commands.Cog):
         :return: the current online player stats of AoE2:DE
         """
 
-        filepath = "..\\DiscordBot\\resources\\images\\aoe2_stats.png"
+        filepath = "..\\DiscordBot\\resources\\images\\aoe2_online_stats.png"
 
         await ctx.send("In process. Might take a little. :)")
         aoe2_api = "https://aoe2.net/api/stats/players?game=aoe2de"
@@ -47,15 +47,18 @@ class AoE(commands.Cog):
         logger.info(f"Requested player data from {aoe2_api}...")
         players = data["player_stats"][0]["num_players"]
 
-        # here the plotting takes place, really rudimentary just for testing purposes
         logger.info("Plotting of data has begun...")
         data_list = [players["steam"], players["multiplayer"], players["looking"], players["in_game"],
                      players["multiplayer_1h"], players["multiplayer_24h"]]
+        # no legend, dark-ish color for all the bars - if each column should be a different color,
+        # the data has to be prepared differently before plotting, in order to be able to access
+        # the columns (bars) indivdually
         df = pd.DataFrame(data=data_list)
-        ax = df.plot(kind="bar")
-        ax.set_title("AoE2:DE - current player stats -- powered by https://aoe2.net/api")
-        ax.set_xlabel("Status")
-        ax.set_ylabel("Player numbers")
+        ax = df.plot(kind="bar", legend=None, color="#333333")
+        ax.set_title("AoE2:DE - current player stats -- powered by https://aoe2.net/#api",
+                     fontweight="bold", x=0.5, y=1.075, bbox={"facecolor": "orange"})
+        ax.set_xlabel("Status", x=0.02, y=0.8, style="italic", bbox={"facecolor": "orange"})
+        ax.set_ylabel("Player numbers", x=1, y=0.05, style="italic", bbox={"facecolor": "orange"})
         ax = ut.set_bar_labels(ax=ax)  # set the bar labels for each bar
         xlabels = players.keys()  # the xlabels are the keys from the dict
         ax.set_xticklabels(xlabels, rotation=0, ha="center")
