@@ -12,7 +12,7 @@ That being said, here is a list of the related game commands and what they do!
 
 *This returns a (still pretty ugly right now) graph showcasing the current amount of players playing AoE2:DE.*
 
-
+<img src="/resources/images/aoe2_stats.png" alt="AoE2:DE stats"/>
 
 
 - **!top "amount of players" "leaderboard_id"**
