@@ -37,9 +37,9 @@ class Misc(commands.Cog):
 
         logger.info("!madeby command has been started and executed...")
         bot_info = await ctx.bot.application_info()
-        return await ctx.send(f"This Bot has been made by {bot_info.owner}."
+        return await ctx.send(f"This Bot has been made by {bot_info.owner.mention}."
                               f"\nFor help, general feedback as well as feature requests "
-                              f"please contact {bot_info.owner} "
+                              f"please contact {bot_info.owner.mention} "
                               f"via a DM (direct message), or "
                               f"visit the github page at: https://github.com/sixP-NaraKa/DiscordBot and issue a request"
                               f" or even contribute yourself!"
