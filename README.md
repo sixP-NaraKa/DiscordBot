@@ -35,7 +35,7 @@ Example Usage:
 *This command retrieves the current rank, rating, total games played, winrate (%) as well as the current win-streak and the amount of dropped (disconnected) games from a given player.
 All thanks to the aoe2.net/#api.*
 
-*If the player name is omitted, the request will retrieve the latest successful result, if available.*
+*If the player name is omitted, the current rank #1 player will be returned by default.*
 
 <img src="/resources/images/aoe2_rank_command_discord.png" alt="AoE2:DE - Player stats"/>
 
