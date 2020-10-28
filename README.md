@@ -32,7 +32,7 @@ Example Usage:
 
 - **!rank "player name"**
 
-*This command retrieves the current rank, rating, total games played, winrate (%) as well as the current win-streak and the amount of dropped (disconnected) games from a given player.
+*This command retrieves the current rank, rating, total games played, winrate (%) as well as the current win-streak and the amount of dropped (disconnected) games from a given player. As it is now, only the 1v1 RM leaderboard can be utilized (can be easily enhanced to work with all the leaderboards).
 All thanks to the aoe2.net/#api.*
 
 *If the player name is omitted, the current rank #1 player will be returned by default.*
