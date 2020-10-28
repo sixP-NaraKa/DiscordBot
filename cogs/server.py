@@ -256,10 +256,11 @@ class Server(commands.Cog):
 
         logger.info("Retrieving guild/server member list...")
         general_info = f"General information:" \
-                       f"\n{ctx.bot.user.name} is connected to the following guild/server:" \
+                       f"\n{ctx.bot.user.mention} is connected to the following guild/server:" \
                        f"\nName - {ctx.guild}" \
                        f"\nID - {ctx.guild.id}" \
                        f"\nMembers - {ctx.guild.member_count}"
+        # ^ was ctx.bot.user.name (now .user.mention)
 
         # gets the names of the current guild members only
         members = "Member list: \n- "
@@ -281,4 +282,4 @@ class Server(commands.Cog):
         # can do only one return, since in this case here it works just fine
         await ut.send_dm(user=ctx.author, guild=ctx.guild, category=ctx.channel.category, channel=ctx.channel,
                          command=ctx.command, text=members, info=general_info)
-        return await ctx.send(f"Sent you (@{ctx.author}) a DM containing more detailed information. :smiley:")
+        return await ctx.send(f"Sent you ({ctx.author.mention}) a DM containing more detailed information. :smiley:")
