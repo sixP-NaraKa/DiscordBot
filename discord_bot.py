@@ -35,7 +35,6 @@ class CommandBot(commands.Bot):  # inherit from discord.ext.commands.Bot
         super().__init__(command_prefix="!")
         # self.bot = commands.Bot(command_prefix="!")
         self.on_ready = self.event(self.on_ready)
-        self.on_member_join = self.event(self.on_member_join)
         self.on_command_error = self.event(self.on_command_error)
 
     def startup(self, bot_token):
