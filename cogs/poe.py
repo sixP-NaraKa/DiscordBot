@@ -162,7 +162,8 @@ class PoE(commands.Cog):
         """
 
         price_info = get_price(want_currency=want_currency, have_currency=have_currency)
-        await ctx.send(f"{price_info}")
+        embed = await ut.embed_message(title="Currency price", desc=price_info)
+        await ctx.send(ctx.author.mention, embed=embed)
         logger.info("Retrieved currency price...")
 
     @commands.command(name="exalt",
@@ -184,7 +185,8 @@ class PoE(commands.Cog):
         want_item = "Exalted Orb"
         have_item = "Chaos Orb"
         price_info = get_price(want_currency=want_item, have_currency=have_item)
-        await ctx.send(f"{price_info}")
+        embed = await ut.embed_message(title="Currency price", desc=price_info)
+        await ctx.send(ctx.author.mention, embed=embed)
         logger.info("Retrieved currency price...")
 
     @commands.command(name="chaos",
@@ -206,7 +208,8 @@ class PoE(commands.Cog):
         want_item = "Chaos Orb"
         have_item = "Exalted Orb"
         price_info = get_price(want_currency=want_item, have_currency=have_item)
-        await ctx.send(f"{price_info}")
+        embed = await ut.embed_message(title="Currency price", desc=price_info)
+        await ctx.send(ctx.author.mention, embed=embed)
         logger.info("Retrieved currency price...")
 
     @commands.command(name="item",
