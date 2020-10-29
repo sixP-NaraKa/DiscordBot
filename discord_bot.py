@@ -88,21 +88,6 @@ class CommandBot(commands.Bot):  # inherit from discord.ext.commands.Bot
         # ctx.bot. ... can also be used
         return f"{self.user.name} has connected to Discord!"
 
-    async def on_member_join(self, member):
-        """
-        Event:\n
-        Whenever a new member joins this guild/server, a welcome message will be automatically sent to the user.
-        This can be used to give the new member some important information about the guild/server, etc..
-
-        :param member: the member which joined
-
-        :return: nothing needs to be returned
-        """
-
-        logger.info(f"A new member joined the guild/server: {member.name}, with ID {member.id}")
-        await member.create_dm()
-        await member.dm_channel.send(f"Oy {member.name}! ;)")
-
     async def on_command_error(self, ctx, error):
         """
         Event:\n
