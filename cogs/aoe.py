@@ -40,7 +40,6 @@ class AoE(commands.Cog):
 
         filepath = "..\\DiscordBot\\resources\\images\\aoe2_online_stats.png"
 
-        await ctx.send("In process. Might take a little. :)")
         aoe2_api = "https://aoe2.net/api/stats/players?game=aoe2de"
 
         data = ut.get_request_response(aoe2_api, json=True)
@@ -66,7 +65,8 @@ class AoE(commands.Cog):
         figure.set_size_inches(19, 10)
         plt.savefig(filepath)
         logger.info(f"Saving plotted graph to {filepath}...")
-        await ctx.send(file=discord.File(filepath))
+        embed = await ut.embed_message(title="AoE2DE stats", filename="stats.png")
+        await ctx.send(file=discord.File(filepath, filename="stats.png"), embed=embed)
       
     @commands.command(name="top",
                       help="Displays graph(s) of the Top players of the AoE2:DE leaderboard of your choosing."
@@ -108,9 +108,6 @@ class AoE(commands.Cog):
 
         leaderboard = leaderboards_ids[leaderboard_id]
 
-        await ctx.send("Depending on how many players you requested, "
-                       "it might take a little while to plot the graphs. "
-                       "Please have a little bit of patience, thanks!")
         url = f"https://aoe2.net/api/leaderboard?game=aoe2de&leaderboard_id={leaderboard_id}&start=1&count={amount}"
         data = ut.get_request_response(url, json=True)
         data = data["leaderboard"]
@@ -170,15 +167,17 @@ class AoE(commands.Cog):
 
         if amount > 5:  # since only 5 players per plot, merge them here together before sending
             merged_file = ut.merge_images(files_to_merge, file_name=f"top_{amount}_players")
-            await ctx.send(f"Requested data of the Top {amount} players "
-                           f"of the current AoE2:DE {leaderboard} leaderboard:",
-                           file=discord.File(merged_file))
+            embed = await ut.embed_message(title=f"Top {amount} of players of the {leaderboard} leaderboard",
+                                           filename="top_players.png")
+            await ctx.send(file=discord.File(merged_file, filename="top_players.png"), embed=embed)
+            
             # deleting all the image files with the naming scheme given - if none is found/deleted, nothing will happen
             ut.del_image_files(directory="..\\DiscordBot\\resources\\images\\", patterns=("top_*.png", "top_*.jpg"))
         else:  # if <= 5, simply only send the 1 plot
-            await ctx.send(f"Requested data of the Top {amount} players "
-                           f"of the current AoE2:DE {leaderboard} leaderboard:",
-                           file=discord.File(filepath))
+            embed = await ut.embed_message(title=f"Top {amount} of players of the {leaderboard} leaderboard",
+                                           filename="top_players.png")
+            await ctx.send(file=discord.File(filepath, filename="top_players.png"), embed=embed)
+            
             # deleting all the image files with the naming scheme given - if none is found/deleted, nothing will happen
             ut.del_image_files(directory="..\\DiscordBot\\resources\\images\\", patterns=("top_*.png", "top_*.jpg"))
             
@@ -205,4 +204,5 @@ class AoE(commands.Cog):
         logger.info(f"Retrieving player/rank data for '{player_name}' using '{url}...'")
         data = ut.get_request_response(link=url, json=False)
         logger.info(f"Retrieved the following data for player '{player_name}': '{data.text}'...")
-        await ctx.send(data.text)
+        embed = await ut.embed_message(title="Player stats", desc=data.text)
+        await ctx.send(embed=embed)
