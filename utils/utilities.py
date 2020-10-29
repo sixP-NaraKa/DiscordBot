@@ -20,6 +20,28 @@ gecko_path = "..\\DiscordBot\\resources\\geckodriver-v0.27.0-win32\\geckodriver.
 ublock_addon_ff = "INSERT_FULL_FILE_PATH_HERE\\DiscordBot\\resources\\ublockXPI\\uBlock0_1.30.1b3.firefox.signed.xpi"
 
 
+async def embed_message(title: str = None, desc: str = None, color: int = 0x0000FF, filename: str = None) -> discord.Embed:
+    """
+    Embeds a given message (mostly only useful for bot messages that are made in channels).
+
+    :param title: the title the embed should have
+    :param desc: the message (body) the embed should have
+    :param color: the color (left side) the embed should have
+    :param filename: a optional filename, if you want to embed an image into the embed - is the name as which the file
+            will be uploaded as -> filename provided must be the same as the actual image, otherwise no embedded image!
+
+    :returns: the discord.Embed embed
+    """
+
+    logger.info("Creating embedded message...")
+    embed = discord.Embed(title=title, description=desc, color=color)
+    if filename is not None:
+        logger.info("Adding attachment to the embed...")
+        embed.set_image(url=f"attachment://{filename}")  # i.e. "item.png"
+    logger.info("Returning the embed...")
+    return embed
+
+
 async def send_dm(user, guild, category, channel, command, text, info=""):
     """
     A function to send a user whatever text this function has received.
