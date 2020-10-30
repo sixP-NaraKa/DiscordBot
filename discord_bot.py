@@ -84,7 +84,6 @@ class CommandBot(commands.Bot):  # inherit from discord.ext.commands.Bot
         """
 
         logger.debug("Started.....")
-        # ctx.bot. ... can also be used
         return f"{self.user.name} has connected to Discord!"
 
     async def on_command_error(self, ctx, error):
