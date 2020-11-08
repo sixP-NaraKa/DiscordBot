@@ -132,5 +132,4 @@ something.txt
 *.txt
 *.exe
 *.xpi
-
 requirements.txt
