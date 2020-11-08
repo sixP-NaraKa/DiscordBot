@@ -125,6 +125,7 @@ dmypy.json
 .pyre/
 
 # individual files for testing, like main.py
+.env.env
 main.*
 .idea/
 idea/
