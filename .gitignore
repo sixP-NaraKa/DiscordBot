@@ -135,3 +135,5 @@ something.txt
 *.xpi
 requirements.txt
 .env.env
+resources/
+logs/
