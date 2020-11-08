@@ -133,3 +133,4 @@ something.txt
 *.exe
 *.xpi
 
+requirements.txt
