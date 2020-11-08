@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 
 import utils.utilities as ut
 # from utils.utilities import get_request_response
+import aoe2netapi as aoe
 
 
 logger = logging.getLogger("discord.AoE")
@@ -42,7 +43,8 @@ class AoE(commands.Cog):
 
         aoe2_api = "https://aoe2.net/api/stats/players?game=aoe2de"
 
-        data = ut.get_request_response(aoe2_api, json=True)
+        # data = ut.get_request_response(aoe2_api, json=True)
+        data = aoe.ab_get_num_online(json=True)
         logger.info(f"Requested player data from {aoe2_api}...")
         players = data["player_stats"][0]["num_players"]
 
@@ -108,8 +110,9 @@ class AoE(commands.Cog):
 
         leaderboard = leaderboards_ids[leaderboard_id]
 
-        url = f"https://aoe2.net/api/leaderboard?game=aoe2de&leaderboard_id={leaderboard_id}&start=1&count={amount}"
-        data = ut.get_request_response(url, json=True)
+        # url = f"https://aoe2.net/api/leaderboard?game=aoe2de&leaderboard_id={leaderboard_id}&start=1&count={amount}"
+        # data = ut.get_request_response(url, json=True)
+        data = aoe.ab_get_leaderboard(leaderboard_id=leaderboard_id, count=amount)
         data = data["leaderboard"]
 
         # saving in here the filepaths of the possibly to be merged files
@@ -202,7 +205,8 @@ class AoE(commands.Cog):
         url = f"https://aoe2.net/api/nightbot/rank?leaderboard_id=3&" \
               f"search={player_name}&steam_id=&flag=false"  # name has to be as precise as it can get!
         logger.info(f"Retrieving player/rank data for '{player_name}' using '{url}...'")
-        data = ut.get_request_response(link=url, json=False)
+        # data = ut.get_request_response(link=url, json=False)
+        data = aoe.nb_get_rank_details(search=player_name)
         logger.info(f"Retrieved the following data for player '{player_name}': '{data.text}'...")
         embed = await ut.embed_message(title="Player stats", desc=data.text)
         await ctx.send(embed=embed)
