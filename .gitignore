@@ -137,3 +137,4 @@ requirements.txt
 .env.env
 resources/
 logs/
+testing.*
