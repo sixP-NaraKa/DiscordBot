@@ -129,6 +129,7 @@ main.*
 .idea/
 idea/
 something.txt
+*.txt
 *.exe
 *.xpi
 
