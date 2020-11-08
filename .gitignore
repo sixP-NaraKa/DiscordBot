@@ -134,3 +134,4 @@ something.txt
 *.exe
 *.xpi
 requirements.txt
+.env.env
