@@ -8,4 +8,4 @@ selenium>=3.141.0
 numpy>=1.18.5
 PIL>=7.2.0
 pyperclip>=1.8.0
-aoe2netapi-wrapper>=0.1.0
+aoe2netapi-wrapper>=0.2.0
